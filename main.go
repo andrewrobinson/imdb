@@ -23,21 +23,25 @@ import (
 // - maxRequests - maximum number of requests to send to [omdbapi](https://www.omdbapi.com/)
 // - plotFilter - regex pattern to apply to the plot of a film retrieved from [omdbapi](https://www.omdbapi.com/)
 
+// go run main.go --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage
+
 func main() {
 
 	filePathFlag := flag.String("filePath", "title.basics.truncated.tsv", "")
-	titleTypeFlag := flag.String("titleType", "", "")
-	primaryTitleFlag := flag.String("primaryTitle", "Conjuring", "")
-	originalTitleFlag := flag.String("originalTitle", "Escamotage", "")
+	titleTypeFlag := flag.String("titleType", "", "filter on `titleType` column")
+	primaryTitleFlag := flag.String("primaryTitle", "", "filter on `primaryTitle` column")
+	originalTitleFlag := flag.String("originalTitle", "", "filter on `originalTitle` column")
 
 	// numbPtr := flag.Int("numb", 42, "an int")
 	// boolPtr := flag.Bool("fork", false, "a bool")
 
 	flag.Parse()
+	fmt.Println("\nflag values passed:")
 	fmt.Println("filePathFlag:", *filePathFlag)
 	fmt.Println("titleType:", *titleTypeFlag)
 	fmt.Println("primaryTitleFlag:", *primaryTitleFlag)
 	fmt.Println("originalTitleFlag:", *originalTitleFlag)
+	fmt.Print("\nMatches:\n")
 
 	file, err := os.Open(*filePathFlag)
 	if err != nil {
@@ -49,29 +53,15 @@ func main() {
 	for scanner.Scan() {
 		line := scanner.Text()
 		fields := strings.Split(line, "\t")
-		//now filter by all the filters
 
 		titleType, primaryTitle, originalTitle := fields[1], fields[2], fields[3]
 
-		if *titleTypeFlag != "" {
-			if strings.Contains(titleType, *titleTypeFlag) {
-				fmt.Println(fields)
-			}
+		titleTypeMatches := flagMatchesOrIsEmpty(*titleTypeFlag, titleType)
+		primaryTitleMatches := flagMatchesOrIsEmpty(*primaryTitleFlag, primaryTitle)
+		originalTitleMatches := flagMatchesOrIsEmpty(*originalTitleFlag, originalTitle)
 
-		}
-
-		if *primaryTitleFlag != "" {
-			if strings.Contains(primaryTitle, *primaryTitleFlag) {
-				fmt.Println(fields)
-			}
-
-		}
-
-		if *originalTitleFlag != "" {
-			if strings.Contains(originalTitle, *originalTitleFlag) {
-				fmt.Println(fields)
-			}
-
+		if titleTypeMatches && primaryTitleMatches && originalTitleMatches {
+			fmt.Println(fields)
 		}
 
 	}
@@ -79,5 +69,16 @@ func main() {
 	if err := scanner.Err(); err != nil {
 		fmt.Println(err)
 	}
+
+}
+
+func flagMatchesOrIsEmpty(filterValue string, columnValue string) bool {
+
+	//if no flag value, then don't filter, ie it passes
+	if filterValue == "" {
+		return true
+	}
+
+	return strings.Contains(columnValue, filterValue)
 
 }
