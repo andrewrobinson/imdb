@@ -12,6 +12,7 @@ import (
 // - titleType - filter on `titleType` column
 // - primaryTitle - filter on `primaryTitle` column
 // - originalTitle - filter on `originalTitle` column
+
 // - genre - filter on `genre` column
 // - startYear - filter on `startYear` column
 // - endYear - filter on `endYear` column
@@ -23,21 +24,22 @@ import (
 // - plotFilter - regex pattern to apply to the plot of a film retrieved from [omdbapi](https://www.omdbapi.com/)
 
 func main() {
-	fmt.Println("Hello, worlddd.")
 
-	filePath := flag.String("filePath", "title.basics.truncated.tsv", "")
-	// titleType := flag.String("titleType", "", "")
-	primaryTitle := flag.String("primaryTitle", "Corbett", "")
-	// originalTitle := flag.String("originalTitle", "", "")
-	// genre := flag.String("genre", "", "")
+	filePathFlag := flag.String("filePath", "title.basics.truncated.tsv", "")
+	titleTypeFlag := flag.String("titleType", "", "")
+	primaryTitleFlag := flag.String("primaryTitle", "Conjuring", "")
+	originalTitleFlag := flag.String("originalTitle", "Escamotage", "")
+
 	// numbPtr := flag.Int("numb", 42, "an int")
 	// boolPtr := flag.Bool("fork", false, "a bool")
 
 	flag.Parse()
-	fmt.Println("filePath:", *filePath)
-	fmt.Println("primaryTitle:", *primaryTitle)
+	fmt.Println("filePathFlag:", *filePathFlag)
+	fmt.Println("titleType:", *titleTypeFlag)
+	fmt.Println("primaryTitleFlag:", *primaryTitleFlag)
+	fmt.Println("originalTitleFlag:", *originalTitleFlag)
 
-	file, err := os.Open(*filePath)
+	file, err := os.Open(*filePathFlag)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -47,14 +49,26 @@ func main() {
 	for scanner.Scan() {
 		line := scanner.Text()
 		fields := strings.Split(line, "\t")
-		//now filter by all the filter
+		//now filter by all the filters
 
-		actualPrimaryTitle := fields[3]
+		titleType, primaryTitle, originalTitle := fields[1], fields[2], fields[3]
 
-		if *primaryTitle != "" {
+		if *titleTypeFlag != "" {
+			if strings.Contains(titleType, *titleTypeFlag) {
+				fmt.Println(fields)
+			}
 
-			if strings.Contains(actualPrimaryTitle, *primaryTitle) {
-				// fmt.Println(actualPrimaryTitle)
+		}
+
+		if *primaryTitleFlag != "" {
+			if strings.Contains(primaryTitle, *primaryTitleFlag) {
+				fmt.Println(fields)
+			}
+
+		}
+
+		if *originalTitleFlag != "" {
+			if strings.Contains(originalTitle, *originalTitleFlag) {
 				fmt.Println(fields)
 			}
 
