@@ -43,7 +43,9 @@ func main() {
 
 		line := scanner.Text()
 		fields := strings.Split(line, "\t")
-		printMatchingLines(fields, titleTypeFlag, primaryTitleFlag, originalTitleFlag,
+
+		//unlimited goroutines
+		go printMatchingLines(fields, titleTypeFlag, primaryTitleFlag, originalTitleFlag,
 			startYearFlag, endYearFlag, runtimeMinutesFlag, genresFlag)
 
 	}
