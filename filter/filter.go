@@ -11,6 +11,16 @@ import (
 	"github.com/andrewrobinson/imdb/model"
 )
 
+func RunFiltersHighMem(lines []string, flags model.ProgramFlags, printRows bool) (int, int) {
+
+	for _, s := range lines {
+		fmt.Println(s)
+	}
+
+	//TODO - implement
+	return 0, 0
+}
+
 func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int) {
 
 	lineNumber := 0
@@ -19,40 +29,7 @@ func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool
 
 		lineNumber++
 		line := scanner.Text()
-		fields := strings.Split(line, "\t")
-		fileRow := common.BuildFileRow(fields)
-
-		if rowMatchesFlags(fileRow, flags) {
-
-			plot, err := common.LookupPlot(fileRow.Tconst)
-
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-
-			fileRow.Plot = plot
-
-			if flags.PlotFilterFlag != "" {
-
-				match, _ := regexp.MatchString(flags.PlotFilterFlag, fileRow.Plot)
-				// fmt.Printf("\nmatch:%v\n", match)
-
-				if match {
-					matches++
-					if printRows {
-						common.PrintFields(fileRow)
-					}
-				}
-
-			} else {
-				matches++
-				if printRows {
-					common.PrintFields(fileRow)
-				}
-			}
-
-		}
+		matches = handleLine(line, flags, matches, printRows)
 
 	}
 
@@ -62,6 +39,45 @@ func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool
 
 	return matches, lineNumber
 
+}
+
+func handleLine(line string, flags model.ProgramFlags, matches int, printRows bool) int {
+	fields := strings.Split(line, "\t")
+	fileRow := common.BuildFileRow(fields)
+
+	if rowMatchesFlags(fileRow, flags) {
+
+		plot, err := common.LookupPlot(fileRow.Tconst)
+
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fileRow.Plot = plot
+
+		if flags.PlotFilterFlag != "" {
+
+			match, _ := regexp.MatchString(flags.PlotFilterFlag, fileRow.Plot)
+			// fmt.Printf("\nmatch:%v\n", match)
+
+			if match {
+				matches++
+				if printRows {
+					common.PrintFields(fileRow)
+				}
+			}
+
+		} else {
+			matches++
+			if printRows {
+				common.PrintFields(fileRow)
+			}
+		}
+
+	}
+
+	return matches
 }
 
 func rowMatchesFlags(row model.FileRow, flags model.ProgramFlags) bool {

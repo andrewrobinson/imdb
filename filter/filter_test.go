@@ -9,23 +9,7 @@ import (
 	"github.com/andrewrobinson/imdb/model"
 )
 
-func BenchmarkRunFiltersAndPrint(b *testing.B) {
-
-	flags := model.ProgramFlags{TitleTypeFlag: "short", PrimaryTitleFlag: "Conjuring", OriginalTitleFlag: "Escamotage"}
-
-	file, err := os.Open("../title.basics.truncated.tsv")
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer file.Close()
-
-	for i := 0; i < b.N; i++ {
-		scanner := bufio.NewScanner(file)
-		RunFilters(scanner, flags, false)
-	}
-}
-
-func TestRunFiltersAndPrint(t *testing.T) {
+func TestRunFilters(t *testing.T) {
 
 	//running against ../title.basics.truncated.tsv, assert on matches and total lines for various filters
 	//I got these numbers using text editor find counts / by eyeballing the data
@@ -135,4 +119,20 @@ func genericTest(t *testing.T, flags model.ProgramFlags, expectedMatches int, ex
 		t.Errorf("got (%d, %d); wanted (%d, %d)", matches, highestLineNumber, expectedMatches, expectedHighestLineNumber)
 	}
 
+}
+
+func BenchmarkRunFiltersAndPrint(b *testing.B) {
+
+	flags := model.ProgramFlags{TitleTypeFlag: "short", PrimaryTitleFlag: "Conjuring", OriginalTitleFlag: "Escamotage"}
+
+	file, err := os.Open("../title.basics.truncated.tsv")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer file.Close()
+
+	for i := 0; i < b.N; i++ {
+		scanner := bufio.NewScanner(file)
+		RunFilters(scanner, flags, false)
+	}
 }

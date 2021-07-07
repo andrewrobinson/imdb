@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/andrewrobinson/imdb/common"
@@ -44,12 +45,12 @@ import (
 func main() {
 
 	printFlags := false
-	printRows := false
+	printRows := true
 	printMatches := true
 	printDuration := true
 
-	useLowMemBufioScanner := false
-	useHighMem := true
+	useLowMemBufioScanner := true
+	useHighMem := false
 
 	start := time.Now()
 
@@ -94,7 +95,16 @@ func processFileHighMem(flags model.ProgramFlags, printRows bool, printMatches b
 
 	stringContent := string(content)
 
+	lines := strings.Split(stringContent, "\n")
+
 	fmt.Printf("len stringContent: %v\n", len(stringContent))
+	fmt.Printf("len lines: %v\n", len(lines))
+
+	matches, highestLineNumber := filter.RunFiltersHighMem(lines, flags, printRows)
+
+	if printMatches {
+		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", matches, highestLineNumber)
+	}
 
 }
 
