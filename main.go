@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/andrewrobinson/imdb/common"
+	"github.com/andrewrobinson/imdb/model"
 	// "PrintFields"
 )
 
@@ -22,12 +25,12 @@ import (
 
 func main() {
 
-	flags := BuildProgramFlags()
+	flags := common.BuildProgramFlags()
 	fmt.Printf("Flags passed: %+v\n", flags)
 
 	fmt.Print("\nMatches:\n")
 
-	file, err := os.Open(flags.filePathFlag)
+	file, err := os.Open(flags.FilePathFlag)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -44,7 +47,7 @@ func main() {
 		lineNumber++
 		line := scanner.Text()
 		fields := strings.Split(line, "\t")
-		rowStruct := BuildFileRow(fields)
+		rowStruct := common.BuildFileRow(fields)
 		printMatchingLines(rowStruct, flags)
 
 	}
@@ -57,50 +60,21 @@ func main() {
 
 }
 
-type ProgramFlags struct {
-	filePathFlag       string
-	titleTypeFlag      string
-	primaryTitleFlag   string
-	originalTitleFlag  string
-	startYearFlag      string
-	endYearFlag        string
-	runtimeMinutesFlag string
-	genresFlag         string
-
-	// maxApiRequests - maximum number of requests to be made to omdbapi
-	// maxRunTime - maximum run time of the application. Format is a time.Duration string see here
-	// maxRequests - maximum number of requests to send to omdbapi
-	// plotFilter - regex pattern to apply to the plot of a film retrieved from omdbapi
-
-}
-
-type FileRow struct {
-	tconst         string
-	titleType      string
-	primaryTitle   string
-	originalTitle  string
-	isAdult        string
-	startYear      string
-	endYear        string
-	runtimeMinutes string
-	genres         string
-}
-
-func printMatchingLines(row FileRow, flags ProgramFlags) {
+func printMatchingLines(row model.FileRow, flags model.ProgramFlags) {
 
 	// TODO - examine buffered output
 	// https://stackoverflow.com/questions/64638136/performance-issues-while-reading-a-file-line-by-line-with-bufio-newscanner
 
-	titleTypeMatches := flagMatchesOrIsEmpty(flags.titleTypeFlag, row.titleType)
-	primaryTitleMatches := flagMatchesOrIsEmpty(flags.primaryTitleFlag, row.primaryTitle)
-	originalTitleMatches := flagMatchesOrIsEmpty(flags.originalTitleFlag, row.originalTitle)
-	startYearMatches := flagMatchesOrIsEmpty(flags.startYearFlag, row.startYear)
-	endYearMatches := flagMatchesOrIsEmpty(flags.endYearFlag, row.endYear)
-	runtimeMinutesMatches := flagMatchesOrIsEmpty(flags.runtimeMinutesFlag, row.runtimeMinutes)
-	genresMatches := flagMatchesOrIsEmpty(flags.genresFlag, row.genres)
+	titleTypeMatches := flagMatchesOrIsEmpty(flags.TitleTypeFlag, row.TitleType)
+	primaryTitleMatches := flagMatchesOrIsEmpty(flags.PrimaryTitleFlag, row.PrimaryTitle)
+	originalTitleMatches := flagMatchesOrIsEmpty(flags.OriginalTitleFlag, row.OriginalTitle)
+	startYearMatches := flagMatchesOrIsEmpty(flags.StartYearFlag, row.StartYear)
+	endYearMatches := flagMatchesOrIsEmpty(flags.EndYearFlag, row.EndYear)
+	runtimeMinutesMatches := flagMatchesOrIsEmpty(flags.RuntimeMinutesFlag, row.RuntimeMinutes)
+	genresMatches := flagMatchesOrIsEmpty(flags.GenresFlag, row.Genres)
 
 	if titleTypeMatches && primaryTitleMatches && originalTitleMatches && startYearMatches && endYearMatches && runtimeMinutesMatches && genresMatches {
-		PrintFields(row)
+		common.PrintFields(row)
 	}
 
 	//simulate the unpredictable time taken for the plot lookup

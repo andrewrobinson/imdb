@@ -1,11 +1,13 @@
-package main
+package common
 
 import (
 	"flag"
 	"fmt"
+
+	"github.com/andrewrobinson/imdb/model"
 )
 
-func BuildProgramFlags() ProgramFlags {
+func BuildProgramFlags() model.ProgramFlags {
 
 	filePathFlag := flag.String("filePath", "title.basics.truncated.tsv", "")
 	titleTypeFlag := flag.String("titleType", "", "")
@@ -18,29 +20,29 @@ func BuildProgramFlags() ProgramFlags {
 
 	flag.Parse()
 
-	flagStruct := ProgramFlags{*filePathFlag, *titleTypeFlag, *primaryTitleFlag, *originalTitleFlag, *startYearFlag, *endYearFlag, *runtimeMinutesFlag, *genresFlag}
+	flagStruct := model.ProgramFlags{*filePathFlag, *titleTypeFlag, *primaryTitleFlag, *originalTitleFlag, *startYearFlag, *endYearFlag, *runtimeMinutesFlag, *genresFlag}
 	return flagStruct
 
 }
 
-func BuildFileRow(fields []string) FileRow {
+func BuildFileRow(fields []string) model.FileRow {
 
-	rowStruct := FileRow{
-		tconst:         fields[0],
-		titleType:      fields[1],
-		primaryTitle:   fields[2],
-		originalTitle:  fields[3],
-		isAdult:        fields[4],
-		startYear:      fields[5],
-		endYear:        fields[6],
-		runtimeMinutes: fields[7],
-		genres:         fields[8],
+	rowStruct := model.FileRow{
+		Tconst:         fields[0],
+		TitleType:      fields[1],
+		PrimaryTitle:   fields[2],
+		OriginalTitle:  fields[3],
+		IsAdult:        fields[4],
+		StartYear:      fields[5],
+		EndYear:        fields[6],
+		RuntimeMinutes: fields[7],
+		Genres:         fields[8],
 	}
 	return rowStruct
 
 }
 
-func PrintFields(row FileRow) {
+func PrintFields(row model.FileRow) {
 	//For now just print out the fields, but later output must be
 	// IMDB_ID     |   Title               |   Plot
 	// tt0000005   |   Blacksmith Scene    |   Three men hammer on an anvil and pass a bottle of beer around.
