@@ -22,6 +22,8 @@ func RunFiltersAndPrint(scanner *bufio.Scanner, flags model.ProgramFlags, printO
 		if rowMatchesFlags(fileRow, flags) {
 			matches++
 			if printOutput {
+				// TODO - examine buffered output
+				// https://stackoverflow.com/questions/64638136/performance-issues-while-reading-a-file-line-by-line-with-bufio-newscanner
 				common.PrintFields(fileRow)
 			}
 		}
@@ -38,9 +40,6 @@ func RunFiltersAndPrint(scanner *bufio.Scanner, flags model.ProgramFlags, printO
 
 func rowMatchesFlags(row model.FileRow, flags model.ProgramFlags) bool {
 
-	// TODO - examine buffered output
-	// https://stackoverflow.com/questions/64638136/performance-issues-while-reading-a-file-line-by-line-with-bufio-newscanner
-
 	titleTypeMatches := flagMatchesOrIsEmpty(flags.TitleTypeFlag, row.TitleType)
 	primaryTitleMatches := flagMatchesOrIsEmpty(flags.PrimaryTitleFlag, row.PrimaryTitle)
 	originalTitleMatches := flagMatchesOrIsEmpty(flags.OriginalTitleFlag, row.OriginalTitle)
@@ -54,9 +53,6 @@ func rowMatchesFlags(row model.FileRow, flags model.ProgramFlags) bool {
 	} else {
 		return false
 	}
-
-	//simulate the unpredictable time taken for the plot lookup
-	//sleepForRandomTime()
 
 }
 
