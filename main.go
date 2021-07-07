@@ -2,27 +2,27 @@ package main
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"os"
 	"strings"
+	// "PrintFields"
 )
 
-// go run main.go --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage
-// go run main.go --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage | wc -l
-// 4 (includes Flags printing lines etc - 1 result)
+// go run . --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage
+// go run . --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage | wc -l
+// 4 (includes Flags printing lines etc - 1 result)go run
 
-// go run main.go --originalTitle=Clown --genres=Comedy
-// go run main.go --originalTitle=Clown --genres=Comedy | wc -l
+// go run . --originalTitle=Clown --genres=Comedy
+// go run . --originalTitle=Clown --genres=Comedy | wc -l
 // 4
 
-// go run main.go --genres=Documentary
-// go run main.go --genres=Documentary | wc -l
+// go run . --genres=Documentary
+// go run . --genres=Documentary | wc -l
 // 40
 
 func main() {
 
-	flags := buildProgramFlags()
+	flags := BuildProgramFlags()
 	fmt.Printf("Flags passed: %+v\n", flags)
 
 	fmt.Print("\nMatches:\n")
@@ -44,7 +44,7 @@ func main() {
 		lineNumber++
 		line := scanner.Text()
 		fields := strings.Split(line, "\t")
-		rowStruct := buildFileRow(fields)
+		rowStruct := BuildFileRow(fields)
 		printMatchingLines(rowStruct, flags)
 
 	}
@@ -100,7 +100,7 @@ func printMatchingLines(row FileRow, flags ProgramFlags) {
 	genresMatches := flagMatchesOrIsEmpty(flags.genresFlag, row.genres)
 
 	if titleTypeMatches && primaryTitleMatches && originalTitleMatches && startYearMatches && endYearMatches && runtimeMinutesMatches && genresMatches {
-		printFields(row)
+		PrintFields(row)
 	}
 
 	//simulate the unpredictable time taken for the plot lookup
@@ -116,14 +116,15 @@ func printMatchingLines(row FileRow, flags ProgramFlags) {
 // 	//fmt.Println("Done")
 // }
 
-func printFields(row FileRow) {
-	//For now just print out the fields, but later output must be
-	// IMDB_ID     |   Title               |   Plot
-	// tt0000005   |   Blacksmith Scene    |   Three men hammer on an anvil and pass a bottle of beer around.
+//moved to helpers.go
+// func printFields(row FileRow) {
+// 	//For now just print out the fields, but later output must be
+// 	// IMDB_ID     |   Title               |   Plot
+// 	// tt0000005   |   Blacksmith Scene    |   Three men hammer on an anvil and pass a bottle of beer around.
 
-	// fmt.Printf("%+v\n", row)
-	fmt.Println(row)
-}
+// 	// fmt.Printf("%+v\n", row)
+// 	fmt.Println(row)
+// }
 
 func flagMatchesOrIsEmpty(filterValue string, columnValue string) bool {
 
@@ -133,40 +134,5 @@ func flagMatchesOrIsEmpty(filterValue string, columnValue string) bool {
 	} else {
 		return strings.Contains(columnValue, filterValue)
 	}
-
-}
-
-func buildProgramFlags() ProgramFlags {
-
-	filePathFlag := flag.String("filePath", "title.basics.truncated.tsv", "")
-	titleTypeFlag := flag.String("titleType", "", "")
-	primaryTitleFlag := flag.String("primaryTitle", "", "")
-	originalTitleFlag := flag.String("originalTitle", "", "")
-	startYearFlag := flag.String("startYear", "", "")
-	endYearFlag := flag.String("endYear", "", "")
-	runtimeMinutesFlag := flag.String("runtimeMinutes", "", "")
-	genresFlag := flag.String("genres", "", "")
-
-	flag.Parse()
-
-	flagStruct := ProgramFlags{*filePathFlag, *titleTypeFlag, *primaryTitleFlag, *originalTitleFlag, *startYearFlag, *endYearFlag, *runtimeMinutesFlag, *genresFlag}
-	return flagStruct
-
-}
-
-func buildFileRow(fields []string) FileRow {
-
-	rowStruct := FileRow{
-		tconst:         fields[0],
-		titleType:      fields[1],
-		primaryTitle:   fields[2],
-		originalTitle:  fields[3],
-		isAdult:        fields[4],
-		startYear:      fields[5],
-		endYear:        fields[6],
-		runtimeMinutes: fields[7],
-		genres:         fields[8],
-	}
-	return rowStruct
 
 }
