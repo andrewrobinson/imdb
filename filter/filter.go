@@ -11,7 +11,7 @@ import (
 	"github.com/andrewrobinson/imdb/model"
 )
 
-func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printOutput bool) (int, int) {
+func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int) {
 
 	lineNumber := 0
 	matches := 0
@@ -40,14 +40,14 @@ func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printOutput bo
 
 				if match {
 					matches++
-					if printOutput {
+					if printRows {
 						common.PrintFields(fileRow)
 					}
 				}
 
 			} else {
 				matches++
-				if printOutput {
+				if printRows {
 					common.PrintFields(fileRow)
 				}
 			}

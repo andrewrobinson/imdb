@@ -20,17 +20,23 @@ import (
 
 func main() {
 
-	// now := time.Now()
+	printFlags := false
+	printRows := false
+	printMatches := true
+	printDuration := true
 
-	// fmt.Printf("%v - main() invoked\n", now)
+	start := time.Now()
 
-	// maxRunTime := 30 * time.Second
+	//fmt.Printf("%v - main() invoked\n", start)
+	//maxRunTime := 30 * time.Second
 
 	flags := common.BuildProgramFlags()
-	// fmt.Printf("Flags passed: %+v\n", flags)
+	if printFlags {
+		fmt.Printf("Flags passed: %+v\n", flags)
+	}
 
-	// go processFile(flags)
-	processFile(flags)
+	// go processFile(flags, false)
+	processFile(flags, printRows, printMatches)
 
 	//a
 	// time.Sleep(maxRunTime)
@@ -39,13 +45,15 @@ func main() {
 	// sleep := time.After(maxRunTime)
 	// <-sleep
 
-	// now = time.Now()
-	// fmt.Printf("%v - timed out\n", now)
+	elapsed := time.Since(start)
+	if printDuration {
+		fmt.Printf("finished, elapsed time:%v\n", elapsed)
+	}
 	// os.Exit(1)
 
 }
 
-func processFile(flags model.ProgramFlags) {
+func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	file, err := os.Open(flags.FilePathFlag)
 	if err != nil {
@@ -60,10 +68,10 @@ func processFile(flags model.ProgramFlags) {
 	//https://stackoverflow.com/questions/64638136/performance-issues-while-reading-a-file-line-by-line-with-bufio-newscanner
 	scanner := bufio.NewScanner(file)
 
-	matches, highestLineNumber := filter.RunFilters(scanner, flags, true)
+	matches, highestLineNumber := filter.RunFilters(scanner, flags, printRows)
 
-	now := time.Now()
-
-	fmt.Printf("%v: processed ok, matches:%v from lines processed:%v\n", now, matches, highestLineNumber)
+	if printMatches {
+		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", matches, highestLineNumber)
+	}
 
 }
