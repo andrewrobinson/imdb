@@ -3,13 +3,14 @@ package filter
 import (
 	"bufio"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/andrewrobinson/imdb/common"
 	"github.com/andrewrobinson/imdb/model"
 )
 
-func RunFiltersAndPrint(scanner *bufio.Scanner, flags model.ProgramFlags, printOutput bool) (int, int) {
+func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printOutput bool) (int, int) {
 
 	lineNumber := 0
 	matches := 0
@@ -19,13 +20,36 @@ func RunFiltersAndPrint(scanner *bufio.Scanner, flags model.ProgramFlags, printO
 		line := scanner.Text()
 		fields := strings.Split(line, "\t")
 		fileRow := common.BuildFileRow(fields)
+
 		if rowMatchesFlags(fileRow, flags) {
-			matches++
-			if printOutput {
-				// TODO - examine buffered output
-				// https://stackoverflow.com/questions/64638136/performance-issues-while-reading-a-file-line-by-line-with-bufio-newscanner
-				common.PrintFields(fileRow)
+
+			//this is the most immediate place to do the plot lookup
+			//it could be done as a separate step, but then this process would need to return data
+			//as opposed to just printing it out while it has it
+			//need to balance memory usage/performance/fault tolerance etc
+
+			plot := common.LookupPlot(fileRow.Tconst)
+			fileRow.Plot = plot
+
+			if flags.PlotFilterFlag != "" {
+
+				match, _ := regexp.MatchString(flags.PlotFilterFlag, fileRow.Plot)
+				fmt.Printf("\nmatch:%v\n", match)
+
+				if match {
+					matches++
+					if printOutput {
+						common.PrintFields(fileRow)
+					}
+				}
+
+			} else {
+				matches++
+				if printOutput {
+					common.PrintFields(fileRow)
+				}
 			}
+
 		}
 
 	}

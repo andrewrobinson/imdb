@@ -20,6 +20,57 @@ go build
 
 ./imdb --primaryTitle=Clown
 
+## performance without parallelism
+
+### when not printing anything, no filters and not doing plot lookup
+go run main.go --filePath=../title.basics.tsv
+2021-07-07 19:05:12.24991 +0100 BST m=+0.000140631 - main() invoked
+2021-07-07 19:05:16.73181 +0100 BST m=+4.482079244: processed ok, matches:8061101 from lines processed:8061101
+2021-07-07 19:05:42.252161 +0100 BST m=+30.002652127 - timed out
+exit status 1
+time: 16.73181 - 12.24991 = 4.4819
+
+### when not printing anything, some filters and not doing plot lookup
+go run main.go --filePath=../title.basics.tsv --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage
+2021-07-07 19:04:00.591726 +0100 BST m=+0.000171416 - main() invoked
+2021-07-07 19:04:05.467223 +0100 BST m=+4.875711330: processed ok, matches:1 from lines processed:8061101
+2021-07-07 19:04:30.595949 +0100 BST m=+30.004655267 - timed out
+exit status 1
+time: 5.467223 - 0.591726 = 4.875492
+
+conclusion: the filtering as coded doesn't slow things significantly.
+only the plot lookup probably warrants parallelism
+implement plot lookup and examine performance
+Writing the output, for the case where many results are returned, will slow things down
+
+### TODO - see if I can get the file reading time down significantly using parallelism
+benchmark a few other file reading ways. apparently there is lots of cpu and io I can unlock?
+ie try other ways of working through the file
+
+## API key
+
+FREE! (1,000 daily limit)
+
+Here is your key: 591edae0
+
+Please append it to all of your API requests,
+
+OMDb API: http://www.omdbapi.com/?i=tt3896198&apikey=591edae0
+
+gives
+
+{
+"Response": "False",
+"Error": "Invalid API key!"
+}
+
+
+### when not printing lines, and not doing plot lookup
+go run main.go --filePath=../title.basics.tsv
+
+
+
+
 ## In a nutshell
 
 Write a Golang program that reads a large file, in this case the IMDB database!

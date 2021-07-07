@@ -11,24 +11,37 @@ import (
 	"github.com/andrewrobinson/imdb/model"
 )
 
+//go run main.go --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
+
+//TODO - memory profile my current implementation
+//I will have to use some buffer of memory if I want to improve performance?
+
+//DONE - crude timing for my unperformant version
+
 func main() {
 
-	maxRunTime := 30 * time.Second
+	// now := time.Now()
+
+	// fmt.Printf("%v - main() invoked\n", now)
+
+	// maxRunTime := 30 * time.Second
 
 	flags := common.BuildProgramFlags()
-	//fmt.Printf("Flags passed: %+v\n", flags)
+	// fmt.Printf("Flags passed: %+v\n", flags)
 
-	go processFile(flags)
+	// go processFile(flags)
+	processFile(flags)
 
 	//a
 	// time.Sleep(maxRunTime)
 
 	//b is equiv to a
-	sleep := time.After(maxRunTime)
-	<-sleep
+	// sleep := time.After(maxRunTime)
+	// <-sleep
 
-	fmt.Println("timed out")
-	os.Exit(0)
+	// now = time.Now()
+	// fmt.Printf("%v - timed out\n", now)
+	// os.Exit(1)
 
 }
 
@@ -37,6 +50,7 @@ func processFile(flags model.ProgramFlags) {
 	file, err := os.Open(flags.FilePathFlag)
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(1)
 	}
 	defer file.Close()
 
@@ -46,8 +60,10 @@ func processFile(flags model.ProgramFlags) {
 	//https://stackoverflow.com/questions/64638136/performance-issues-while-reading-a-file-line-by-line-with-bufio-newscanner
 	scanner := bufio.NewScanner(file)
 
-	matches, highestLineNumber := filter.RunFiltersAndPrint(scanner, flags, true)
+	matches, highestLineNumber := filter.RunFilters(scanner, flags, true)
 
-	fmt.Printf("processed ok, matches:%v from lines processed:%v\n", matches, highestLineNumber)
+	now := time.Now()
+
+	fmt.Printf("%v: processed ok, matches:%v from lines processed:%v\n", now, matches, highestLineNumber)
 
 }

@@ -9,6 +9,7 @@ type ProgramFlags struct {
 	EndYearFlag        string
 	RuntimeMinutesFlag string
 	GenresFlag         string
+	PlotFilterFlag     string
 
 	// TODO
 	// maxApiRequests - maximum number of requests to be made to omdbapi
@@ -28,4 +29,5 @@ type FileRow struct {
 	EndYear        string
 	RuntimeMinutes string
 	Genres         string
+	Plot           string
 }

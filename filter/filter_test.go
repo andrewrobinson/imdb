@@ -21,7 +21,7 @@ func BenchmarkRunFiltersAndPrint(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		scanner := bufio.NewScanner(file)
-		RunFiltersAndPrint(scanner, flags, false)
+		RunFilters(scanner, flags, false)
 	}
 }
 
@@ -100,6 +100,23 @@ func TestRunFiltersAndPrint(t *testing.T) {
 		genericTest(t, flags, 1, 75)
 	})
 
+	//all rows currently have the plot for the below film hardcoded to save on limited api requests allowed:
+
+	//"As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile,
+	// much to our amazement, the lady vanishes into thin air."
+
+	//female should match
+	t.Run("--primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female", func(t *testing.T) {
+		flags := model.ProgramFlags{PrimaryTitleFlag: "Conjuring", OriginalTitleFlag: "Escamotage", PlotFilterFlag: "female"}
+		genericTest(t, flags, 1, 75)
+	})
+
+	//females should not regex match
+	t.Run("--primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=females", func(t *testing.T) {
+		flags := model.ProgramFlags{PrimaryTitleFlag: "Conjuring", OriginalTitleFlag: "Escamotage", PlotFilterFlag: "females"}
+		genericTest(t, flags, 0, 75)
+	})
+
 }
 
 func genericTest(t *testing.T, flags model.ProgramFlags, expectedMatches int, expectedHighestLineNumber int) {
@@ -112,7 +129,7 @@ func genericTest(t *testing.T, flags model.ProgramFlags, expectedMatches int, ex
 
 	scanner := bufio.NewScanner(file)
 
-	matches, highestLineNumber := RunFiltersAndPrint(scanner, flags, false)
+	matches, highestLineNumber := RunFilters(scanner, flags, false)
 
 	if matches != expectedMatches || highestLineNumber != expectedHighestLineNumber {
 		t.Errorf("got (%d, %d); wanted (%d, %d)", matches, highestLineNumber, expectedMatches, expectedHighestLineNumber)
