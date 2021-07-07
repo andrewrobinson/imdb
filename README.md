@@ -1,5 +1,19 @@
 # Golang Challenge IMDB
 
+## to run tests
+
+go test ./...
+
+## to run
+
+go run main.go --primaryTitle=Clown
+
+or
+
+go build
+
+./imdb --primaryTitle=Clown
+
 ## In a nutshell
 
 Write a Golang program that reads a large file, in this case the IMDB database!
