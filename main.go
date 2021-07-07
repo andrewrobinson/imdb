@@ -12,11 +12,15 @@ import (
 )
 
 //go run main.go --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
+// processed ok, matches:1 from lines processed:75
+// finished, elapsed time:22.457956ms
+
+//go run main.go --filePath=../title.basics.tsv --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
+// processed ok, matches:1 from lines processed:8061101
+// finished, elapsed time:5.437130106s
 
 //TODO - memory profile my current implementation
 //I will have to use some buffer of memory if I want to improve performance?
-
-//DONE - crude timing for my unperformant version
 
 func main() {
 
