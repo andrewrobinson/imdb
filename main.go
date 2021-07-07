@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"time"
 
@@ -14,13 +15,31 @@ import (
 //go run main.go --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
 // processed ok, matches:1 from lines processed:75
 // finished, elapsed time:22.457956ms
+// So 22.4ms for an 6 805 bytes (8 KB on disk) file
+
+//highmem gives
+// len stringContent: 6805
+// finished, elapsed time:444.098µs
 
 //go run main.go --filePath=../title.basics.tsv --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
 // processed ok, matches:1 from lines processed:8061101
 // finished, elapsed time:5.437130106s
+// So 5.4s for an 689 049 864 bytes (689,1 MB on disk) file
 
-//TODO - memory profile my current implementation
-//I will have to use some buffer of memory if I want to improve performance?
+//highmem gives
+// len stringContent: 689049864
+// finished, elapsed time:3.742361676s
+
+//TODO - memory profile
+//TODO - docker - for profiling environment too
+
+//TODO - time some alternative ways of reading this file
+// https://hackernoon.com/leveraging-multithreading-to-read-large-files-faster-in-go-lmn32t7
+// https://blog.cloudboost.io/reading-humongous-files-in-go-c894b05ac020
+// https://stackoverflow.com/questions/52154609/fastest-way-of-reading-huge-file-in-go-lang-with-small-ram/52154800
+
+//TODO - try a memory hungry version, ie slurp the whole thing in.
+//the current impl is a low memory version
 
 func main() {
 
@@ -28,6 +47,9 @@ func main() {
 	printRows := false
 	printMatches := true
 	printDuration := true
+
+	useLowMemBufioScanner := false
+	useHighMem := true
 
 	start := time.Now()
 
@@ -40,7 +62,13 @@ func main() {
 	}
 
 	// go processFile(flags, false)
-	processFile(flags, printRows, printMatches)
+	if useLowMemBufioScanner {
+		processFileWithBufioScanner(flags, printRows, printMatches)
+	}
+
+	if useHighMem {
+		processFileHighMem(flags, printRows, printMatches)
+	}
 
 	//a
 	// time.Sleep(maxRunTime)
@@ -57,7 +85,20 @@ func main() {
 
 }
 
-func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
+func processFileHighMem(flags model.ProgramFlags, printRows bool, printMatches bool) {
+
+	content, err := ioutil.ReadFile(flags.FilePathFlag)
+	if err != nil {
+		fmt.Println("Err")
+	}
+
+	stringContent := string(content)
+
+	fmt.Printf("len stringContent: %v\n", len(stringContent))
+
+}
+
+func processFileWithBufioScanner(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	file, err := os.Open(flags.FilePathFlag)
 	if err != nil {
