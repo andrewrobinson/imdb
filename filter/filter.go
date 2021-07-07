@@ -3,6 +3,7 @@ package filter
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 
@@ -23,18 +24,19 @@ func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printOutput bo
 
 		if rowMatchesFlags(fileRow, flags) {
 
-			//this is the most immediate place to do the plot lookup
-			//it could be done as a separate step, but then this process would need to return data
-			//as opposed to just printing it out while it has it
-			//need to balance memory usage/performance/fault tolerance etc
+			plot, err := common.LookupPlot(fileRow.Tconst)
 
-			plot := common.LookupPlot(fileRow.Tconst)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
 			fileRow.Plot = plot
 
 			if flags.PlotFilterFlag != "" {
 
 				match, _ := regexp.MatchString(flags.PlotFilterFlag, fileRow.Plot)
-				fmt.Printf("\nmatch:%v\n", match)
+				// fmt.Printf("\nmatch:%v\n", match)
 
 				if match {
 					matches++

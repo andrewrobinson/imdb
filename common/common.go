@@ -9,7 +9,7 @@ import (
 	"github.com/andrewrobinson/imdb/model"
 )
 
-func LookupPlot(tconst string) string {
+func LookupPlot(tconst string) (string, error) {
 
 	// time curl "https://www.omdbapi.com/?i=tt0000075&apikey=591edae0"
 	// {"Title":"Escamotage d'une dame au théâtre Robert Houdin","Year":"1896","Rated":"N/A","Released":"01 Oct 1896","Runtime":"1 min","Genre":"Short, Horror","Director":"Georges Méliès","Writer":"N/A","Actors":"Jehanne d'Alcy, Georges Méliès","Plot":"As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile, much to our amazement, the lady vanishes into thin air.","Language":"None","Country":"France","Awards":"N/A","Poster":"https://m.media-amazon.com/images/M/MV5BNGRhNTcxMDMtYTMyMi00ZTIxLThiOWUtMTgwZDA2Njk4YTFjXkEyXkFqcGdeQXVyNDE5MTU2MDE@._V1_SX300.jpg","Ratings":[{"Source":"Internet Movie Database","Value":"6.3/10"}],"Metascore":"N/A","imdbRating":"6.3","imdbVotes":"1,665","imdbID":"tt0000075","Type":"movie","DVD":"N/A","BoxOffice":"N/A","Production":"N/A","Website":"N/A","Response":"True"}
@@ -18,7 +18,7 @@ func LookupPlot(tconst string) string {
 	//sleep for between 10 and 20 milliseconds
 	sleepForRandomTime()
 
-	return "As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile, much to our amazement, the lady vanishes into thin air."
+	return "As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile, much to our amazement, the lady vanishes into thin air.", nil
 
 }
 
