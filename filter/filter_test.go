@@ -12,6 +12,7 @@ import (
 func TestRunFiltersAndPrint(t *testing.T) {
 
 	//running against ../title.basics.truncated.tsv, assert on matches and total lines for various filters
+	//I got these numbers using text editor find counts / by eyeballing the data
 
 	t.Run("no filters", func(t *testing.T) {
 		emptyFlags := model.ProgramFlags{}
@@ -26,6 +27,61 @@ func TestRunFiltersAndPrint(t *testing.T) {
 	t.Run("--genres=Short", func(t *testing.T) {
 		flags := model.ProgramFlags{GenresFlag: "Short"}
 		genericTest(t, flags, 73, 75)
+	})
+
+	t.Run("--genres=Comedy,Short", func(t *testing.T) {
+		flags := model.ProgramFlags{GenresFlag: "Comedy,Short"}
+		genericTest(t, flags, 4, 75)
+	})
+
+	t.Run("--genres=Animation,Comedy,Romance", func(t *testing.T) {
+		flags := model.ProgramFlags{GenresFlag: "Animation,Comedy,Romance"}
+		genericTest(t, flags, 1, 75)
+	})
+
+	t.Run("--genres=Comedy,Romance", func(t *testing.T) {
+		flags := model.ProgramFlags{GenresFlag: "Comedy,Romance"}
+		genericTest(t, flags, 1, 75)
+	})
+
+	t.Run("--genres=Documentary", func(t *testing.T) {
+		flags := model.ProgramFlags{GenresFlag: "Documentary"}
+		genericTest(t, flags, 37, 75)
+	})
+
+	t.Run("--originalTitle=Clown", func(t *testing.T) {
+		flags := model.ProgramFlags{OriginalTitleFlag: "Clown"}
+		genericTest(t, flags, 1, 75)
+	})
+
+	t.Run("--originalTitle=Clown --genres=Documentary", func(t *testing.T) {
+		flags := model.ProgramFlags{OriginalTitleFlag: "Clown", GenresFlag: "Documentary"}
+		genericTest(t, flags, 0, 75)
+	})
+
+	t.Run("--originalTitle=Clown --genres=Comedy", func(t *testing.T) {
+		flags := model.ProgramFlags{OriginalTitleFlag: "Clown", GenresFlag: "Comedy"}
+		genericTest(t, flags, 1, 75)
+	})
+
+	t.Run("--originalTitle=Clown --genres=medy", func(t *testing.T) {
+		flags := model.ProgramFlags{OriginalTitleFlag: "Clown", GenresFlag: "medy"}
+		genericTest(t, flags, 1, 75)
+	})
+
+	t.Run("--originalTitle=Clown --genres=Dramedy", func(t *testing.T) {
+		flags := model.ProgramFlags{OriginalTitleFlag: "Clown", GenresFlag: "Dramedy"}
+		genericTest(t, flags, 0, 75)
+	})
+
+	t.Run("--genres=Dramedy", func(t *testing.T) {
+		flags := model.ProgramFlags{GenresFlag: "Dramedy"}
+		genericTest(t, flags, 0, 75)
+	})
+
+	t.Run("--titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage", func(t *testing.T) {
+		flags := model.ProgramFlags{TitleTypeFlag: "short", PrimaryTitleFlag: "Conjuring", OriginalTitleFlag: "Escamotage"}
+		genericTest(t, flags, 1, 75)
 	})
 
 }
