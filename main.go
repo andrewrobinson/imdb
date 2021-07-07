@@ -8,20 +8,43 @@ import (
 
 	"github.com/andrewrobinson/imdb/common"
 	"github.com/andrewrobinson/imdb/model"
-	// "PrintFields"
 )
 
-// go run . --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage
-// go run . --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage | wc -l
-// 4 (includes Flags printing lines etc - 1 result)go run
+// go run main.go
+//processed ok, matches:75 from lines processed:75
 
-// go run . --originalTitle=Clown --genres=Comedy
-// go run . --originalTitle=Clown --genres=Comedy | wc -l
-// 4
+// go run main.go --genres=Comedy
+// processed ok, matches:7 from lines processed:75
 
-// go run . --genres=Documentary
-// go run . --genres=Documentary | wc -l
-// 40
+// go run main.go --genres=Short
+// processed ok, matches:73 from lines processed:75
+
+// go run main.go --genres=Comedy,Short
+// processed ok, matches:4 from lines processed:75
+
+// go run main.go --genres=Animation,Comedy,Romance
+// processed ok, matches:1 from lines processed:75
+
+// go run main.go --genres=Comedy,Romance
+// processed ok, matches:1 from lines processed:75
+
+// go run main.go --genres=Documentary
+// processed ok, matches:37 from lines processed:75
+
+// go run main.go --originalTitle=Clown
+//processed ok, matches:1 from lines processed:75
+
+// go run main.go --originalTitle=Clown --genres=Comedy
+// processed ok, matches:1 from lines processed:75
+
+// go run main.go --originalTitle=Clown --genres=medy
+// processed ok, matches:1 from lines processed:75
+
+// go run main.go --originalTitle=Clown --genres=Dramedy
+// processed ok, matches:0 from lines processed:75
+
+// go run main.go --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage
+// processed ok, matches:1 from lines processed:75%
 
 func main() {
 
@@ -42,25 +65,29 @@ func main() {
 	// https://stackoverflow.com/questions/64638136/performance-issues-while-reading-a-file-line-by-line-with-bufio-newscanner
 	scanner := bufio.NewScanner(file)
 	lineNumber := 0
+	matches := 0
 	for scanner.Scan() {
 
 		lineNumber++
 		line := scanner.Text()
 		fields := strings.Split(line, "\t")
-		rowStruct := common.BuildFileRow(fields)
-		printMatchingLines(rowStruct, flags)
+		fileRow := common.BuildFileRow(fields)
+		if rowMatchesFlags(fileRow, flags) {
+			matches++
+			common.PrintFields(fileRow)
+		}
 
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Printf("something bad happened in the line %v: %v", lineNumber, err)
+		fmt.Printf("error on line %v: %v", lineNumber, err)
 	} else {
-		fmt.Printf("processed ok and reached lineNumber: %v", lineNumber)
+		fmt.Printf("processed ok, matches:%v from lines processed:%v", matches, lineNumber)
 	}
 
 }
 
-func printMatchingLines(row model.FileRow, flags model.ProgramFlags) {
+func rowMatchesFlags(row model.FileRow, flags model.ProgramFlags) bool {
 
 	// TODO - examine buffered output
 	// https://stackoverflow.com/questions/64638136/performance-issues-while-reading-a-file-line-by-line-with-bufio-newscanner
@@ -74,31 +101,15 @@ func printMatchingLines(row model.FileRow, flags model.ProgramFlags) {
 	genresMatches := flagMatchesOrIsEmpty(flags.GenresFlag, row.Genres)
 
 	if titleTypeMatches && primaryTitleMatches && originalTitleMatches && startYearMatches && endYearMatches && runtimeMinutesMatches && genresMatches {
-		common.PrintFields(row)
+		return true
+	} else {
+		return false
 	}
 
 	//simulate the unpredictable time taken for the plot lookup
 	//sleepForRandomTime()
 
 }
-
-// func sleepForRandomTime() {
-// 	rand.Seed(time.Now().UnixNano())
-// 	n := rand.Intn(10) // n will be between 0 and 10
-// 	//fmt.Printf("Sleeping %d seconds...\n", n)
-// 	time.Sleep(time.Duration(n) * time.Second)
-// 	//fmt.Println("Done")
-// }
-
-//moved to helpers.go
-// func printFields(row FileRow) {
-// 	//For now just print out the fields, but later output must be
-// 	// IMDB_ID     |   Title               |   Plot
-// 	// tt0000005   |   Blacksmith Scene    |   Three men hammer on an anvil and pass a bottle of beer around.
-
-// 	// fmt.Printf("%+v\n", row)
-// 	fmt.Println(row)
-// }
 
 func flagMatchesOrIsEmpty(filterValue string, columnValue string) bool {
 

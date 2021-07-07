@@ -20,7 +20,14 @@ func BuildProgramFlags() model.ProgramFlags {
 
 	flag.Parse()
 
-	flagStruct := model.ProgramFlags{*filePathFlag, *titleTypeFlag, *primaryTitleFlag, *originalTitleFlag, *startYearFlag, *endYearFlag, *runtimeMinutesFlag, *genresFlag}
+	flagStruct := model.ProgramFlags{FilePathFlag: *filePathFlag,
+		TitleTypeFlag:      *titleTypeFlag,
+		PrimaryTitleFlag:   *primaryTitleFlag,
+		OriginalTitleFlag:  *originalTitleFlag,
+		StartYearFlag:      *startYearFlag,
+		EndYearFlag:        *endYearFlag,
+		RuntimeMinutesFlag: *runtimeMinutesFlag,
+		GenresFlag:         *genresFlag}
 	return flagStruct
 
 }
@@ -50,3 +57,11 @@ func PrintFields(row model.FileRow) {
 	// fmt.Printf("%+v\n", row)
 	fmt.Println(row)
 }
+
+// func sleepForRandomTime() {
+// 	rand.Seed(time.Now().UnixNano())
+// 	n := rand.Intn(10) // n will be between 0 and 10
+// 	//fmt.Printf("Sleeping %d seconds...\n", n)
+// 	time.Sleep(time.Duration(n) * time.Second)
+// 	//fmt.Println("Done")
+// }

@@ -10,6 +10,7 @@ type ProgramFlags struct {
 	RuntimeMinutesFlag string
 	GenresFlag         string
 
+	// TODO
 	// maxApiRequests - maximum number of requests to be made to omdbapi
 	// maxRunTime - maximum run time of the application. Format is a time.Duration string see here
 	// maxRequests - maximum number of requests to send to omdbapi
