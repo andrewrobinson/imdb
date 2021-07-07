@@ -13,12 +13,17 @@ import (
 
 func RunFiltersHighMem(lines []string, flags model.ProgramFlags, printRows bool) (int, int) {
 
-	for _, s := range lines {
-		fmt.Println(s)
+	lineNumber := 0
+	matches := 0
+	for _, line := range lines {
+		lineNumber++
+		fmt.Printf("highmem line:'%v'\n", line)
+		if lineNumber != 1 && line != "" {
+			matches = handleLine(line, flags, matches, printRows)
+		}
 	}
 
-	//TODO - implement
-	return 0, 0
+	return matches, lineNumber
 }
 
 func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int) {
@@ -29,7 +34,10 @@ func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool
 
 		lineNumber++
 		line := scanner.Text()
-		matches = handleLine(line, flags, matches, printRows)
+		// fmt.Printf("lowmem line:'%v'\n", line)
+		if lineNumber != 1 {
+			matches = handleLine(line, flags, matches, printRows)
+		}
 
 	}
 
@@ -41,6 +49,7 @@ func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool
 
 }
 
+//TODO - test on this level now it is called from 2 places?
 func handleLine(line string, flags model.ProgramFlags, matches int, printRows bool) int {
 	fields := strings.Split(line, "\t")
 	fileRow := common.BuildFileRow(fields)

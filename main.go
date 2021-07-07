@@ -39,13 +39,10 @@ import (
 // https://blog.cloudboost.io/reading-humongous-files-in-go-c894b05ac020
 // https://stackoverflow.com/questions/52154609/fastest-way-of-reading-huge-file-in-go-lang-with-small-ram/52154800
 
-//TODO - try a memory hungry version, ie slurp the whole thing in.
-//the current impl is a low memory version
-
 func main() {
 
 	printFlags := false
-	printRows := true
+	printRows := false
 	printMatches := true
 	printDuration := true
 
