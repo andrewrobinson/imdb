@@ -20,7 +20,13 @@ func main() {
 
 	go processFile(flags)
 
-	time.Sleep(maxRunTime)
+	//a
+	// time.Sleep(maxRunTime)
+
+	//b is equiv to a
+	sleep := time.After(maxRunTime)
+	<-sleep
+
 	fmt.Println("timed out")
 	os.Exit(0)
 
@@ -35,9 +41,9 @@ func processFile(flags model.ProgramFlags) {
 	defer file.Close()
 
 	//https://golangdocs.com/reading-files-in-golang
-	// https://devmarkpro.com/working-big-files-golang
+	//https://devmarkpro.com/working-big-files-golang
 	//https://golang.org/pkg/bufio/#Scanner
-	// https://stackoverflow.com/questions/64638136/performance-issues-while-reading-a-file-line-by-line-with-bufio-newscanner
+	//https://stackoverflow.com/questions/64638136/performance-issues-while-reading-a-file-line-by-line-with-bufio-newscanner
 	scanner := bufio.NewScanner(file)
 
 	matches, highestLineNumber := filter.RunFiltersAndPrint(scanner, flags, true)

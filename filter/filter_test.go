@@ -9,6 +9,22 @@ import (
 	"github.com/andrewrobinson/imdb/model"
 )
 
+func BenchmarkRunFiltersAndPrint(b *testing.B) {
+
+	flags := model.ProgramFlags{TitleTypeFlag: "short", PrimaryTitleFlag: "Conjuring", OriginalTitleFlag: "Escamotage"}
+
+	file, err := os.Open("../title.basics.truncated.tsv")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer file.Close()
+
+	for i := 0; i < b.N; i++ {
+		scanner := bufio.NewScanner(file)
+		RunFiltersAndPrint(scanner, flags, false)
+	}
+}
+
 func TestRunFiltersAndPrint(t *testing.T) {
 
 	//running against ../title.basics.truncated.tsv, assert on matches and total lines for various filters

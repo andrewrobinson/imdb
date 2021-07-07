@@ -4,6 +4,12 @@
 
 go test ./...
 
+
+## to run benchmark(s)
+
+go test -bench . ./...
+
+
 ## to run
 
 go run main.go --primaryTitle=Clown
