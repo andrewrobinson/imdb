@@ -17,7 +17,7 @@ func RunFiltersHighMem(lines []string, flags model.ProgramFlags, printRows bool)
 	matches := 0
 	for _, line := range lines {
 		lineNumber++
-		fmt.Printf("highmem line:'%v'\n", line)
+		// fmt.Printf("highmem line:'%v'\n", line)
 		if lineNumber != 1 && line != "" {
 			matches = handleLine(line, flags, matches, printRows)
 		}

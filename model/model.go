@@ -10,6 +10,7 @@ type ProgramFlags struct {
 	RuntimeMinutesFlag string
 	GenresFlag         string
 	PlotFilterFlag     string
+	ProcessingTypeFlag string
 
 	// TODO
 	// maxApiRequests - maximum number of requests to be made to omdbapi

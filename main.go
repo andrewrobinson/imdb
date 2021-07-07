@@ -13,23 +13,19 @@ import (
 	"github.com/andrewrobinson/imdb/model"
 )
 
-//go run main.go --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
-// processed ok, matches:1 from lines processed:75
-// finished, elapsed time:22.457956ms
-// So 22.4ms for an 6 805 bytes (8 KB on disk) file
+//go build
 
-//highmem gives
-// len stringContent: 6805
-// finished, elapsed time:444.098µs
+// ./imdb --processingType=lowmem --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
+// 12-24ms
 
-//go run main.go --filePath=../title.basics.tsv --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
-// processed ok, matches:1 from lines processed:8061101
-// finished, elapsed time:5.437130106s
-// So 5.4s for an 689 049 864 bytes (689,1 MB on disk) file
+// ./imdb --processingType=highmem --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
+// 11-23ms
 
-//highmem gives
-// len stringContent: 689049864
-// finished, elapsed time:3.742361676s
+// ./imdb --processingType=lowmem --filePath=../title.basics.tsv --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
+// 4.5-5.6s
+
+// ./imdb --processingType=highmem --filePath=../title.basics.tsv --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
+// 4.2-4.8s
 
 //TODO - memory profile
 //TODO - docker - for profiling environment too
@@ -46,9 +42,6 @@ func main() {
 	printMatches := true
 	printDuration := true
 
-	useLowMemBufioScanner := true
-	useHighMem := false
-
 	start := time.Now()
 
 	//fmt.Printf("%v - main() invoked\n", start)
@@ -60,11 +53,11 @@ func main() {
 	}
 
 	// go processFile(flags, false)
-	if useLowMemBufioScanner {
-		processFileWithBufioScanner(flags, printRows, printMatches)
+	if flags.ProcessingTypeFlag == "lowmem" {
+		processFileLowMem(flags, printRows, printMatches)
 	}
 
-	if useHighMem {
+	if flags.ProcessingTypeFlag == "highmem" {
 		processFileHighMem(flags, printRows, printMatches)
 	}
 
@@ -94,8 +87,8 @@ func processFileHighMem(flags model.ProgramFlags, printRows bool, printMatches b
 
 	lines := strings.Split(stringContent, "\n")
 
-	fmt.Printf("len stringContent: %v\n", len(stringContent))
-	fmt.Printf("len lines: %v\n", len(lines))
+	// fmt.Printf("len stringContent: %v\n", len(stringContent))
+	// fmt.Printf("len lines: %v\n", len(lines))
 
 	matches, highestLineNumber := filter.RunFiltersHighMem(lines, flags, printRows)
 
@@ -105,7 +98,7 @@ func processFileHighMem(flags model.ProgramFlags, printRows bool, printMatches b
 
 }
 
-func processFileWithBufioScanner(flags model.ProgramFlags, printRows bool, printMatches bool) {
+func processFileLowMem(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	file, err := os.Open(flags.FilePathFlag)
 	if err != nil {

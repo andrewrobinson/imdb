@@ -41,6 +41,7 @@ func BuildProgramFlags() model.ProgramFlags {
 	runtimeMinutesFlag := flag.String("runtimeMinutes", "", "")
 	genresFlag := flag.String("genres", "", "")
 	plotFilterFlag := flag.String("plotFilter", "", "")
+	processingTypeFlag := flag.String("processingType", "lowmem", "lowmem or highmem")
 
 	flag.Parse()
 
@@ -52,7 +53,8 @@ func BuildProgramFlags() model.ProgramFlags {
 		EndYearFlag:        *endYearFlag,
 		RuntimeMinutesFlag: *runtimeMinutesFlag,
 		GenresFlag:         *genresFlag,
-		PlotFilterFlag:     *plotFilterFlag}
+		PlotFilterFlag:     *plotFilterFlag,
+		ProcessingTypeFlag: *processingTypeFlag}
 	return flagStruct
 
 }
