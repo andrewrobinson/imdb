@@ -22,10 +22,17 @@ import (
 // 11-23ms
 
 // ./imdb --processingType=lowmem --filePath=../title.basics.tsv --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
+
 // 4.5-5.6s
 
 // ./imdb --processingType=highmem --filePath=../title.basics.tsv --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
 // 4.2-4.8s
+
+// ./imdb --processingType=lowmem --filePath=../title.basics.tsv
+// why so slow?
+
+// ./imdb --processingType=highmem --filePath=../title.basics.tsv
+// why so slow?
 
 //TODO - memory profile
 //TODO - docker - for profiling environment too
@@ -52,13 +59,16 @@ func main() {
 		fmt.Printf("Flags passed: %+v\n", flags)
 	}
 
-	// go processFile(flags, false)
-	if flags.ProcessingTypeFlag == "lowmem" {
+	switch flags.ProcessingTypeFlag {
+	case "lowmem":
+		fmt.Println("XX lowmem selected")
 		processFileLowMem(flags, printRows, printMatches)
-	}
-
-	if flags.ProcessingTypeFlag == "highmem" {
+	case "highmem":
+		fmt.Println("XX highmem selected")
 		processFileHighMem(flags, printRows, printMatches)
+	default:
+		fmt.Println("XX invalid or no processingType Flag specified, aborting")
+		os.Exit(1)
 	}
 
 	//a
@@ -73,28 +83,6 @@ func main() {
 		fmt.Printf("finished, elapsed time:%v\n", elapsed)
 	}
 	// os.Exit(1)
-
-}
-
-func processFileHighMem(flags model.ProgramFlags, printRows bool, printMatches bool) {
-
-	content, err := ioutil.ReadFile(flags.FilePathFlag)
-	if err != nil {
-		fmt.Println("Err")
-	}
-
-	stringContent := string(content)
-
-	lines := strings.Split(stringContent, "\n")
-
-	// fmt.Printf("len stringContent: %v\n", len(stringContent))
-	// fmt.Printf("len lines: %v\n", len(lines))
-
-	matches, highestLineNumber := filter.RunFiltersHighMem(lines, flags, printRows)
-
-	if printMatches {
-		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", matches, highestLineNumber)
-	}
 
 }
 
@@ -114,6 +102,28 @@ func processFileLowMem(flags model.ProgramFlags, printRows bool, printMatches bo
 	scanner := bufio.NewScanner(file)
 
 	matches, highestLineNumber := filter.RunFiltersLowMem(scanner, flags, printRows)
+
+	if printMatches {
+		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", matches, highestLineNumber)
+	}
+
+}
+
+func processFileHighMem(flags model.ProgramFlags, printRows bool, printMatches bool) {
+
+	content, err := ioutil.ReadFile(flags.FilePathFlag)
+	if err != nil {
+		fmt.Println("Err")
+	}
+
+	lines := strings.Split(string(content), "\n")
+
+	// fmt.Printf("len stringContent: %v\n", len(stringContent))
+	fmt.Printf("XXX len lines: %v\n", len(lines))
+
+	matches, highestLineNumber := filter.RunFiltersHighMem(lines, flags, printRows)
+
+	fmt.Printf("XXX after filter.RunFiltersHighMem, printMatches: %v\n", printMatches)
 
 	if printMatches {
 		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", matches, highestLineNumber)

@@ -11,21 +11,6 @@ import (
 	"github.com/andrewrobinson/imdb/model"
 )
 
-func RunFiltersHighMem(lines []string, flags model.ProgramFlags, printRows bool) (int, int) {
-
-	lineNumber := 0
-	matches := 0
-	for _, line := range lines {
-		lineNumber++
-		// fmt.Printf("highmem line:'%v'\n", line)
-		if lineNumber != 1 && line != "" {
-			matches = handleLine(line, flags, matches, printRows)
-		}
-	}
-
-	return matches, lineNumber
-}
-
 func RunFiltersLowMem(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int) {
 
 	lineNumber := 0
@@ -33,6 +18,7 @@ func RunFiltersLowMem(scanner *bufio.Scanner, flags model.ProgramFlags, printRow
 	for scanner.Scan() {
 
 		lineNumber++
+		fmt.Printf("lowmem lineNumber:'%v'\n", lineNumber)
 		line := scanner.Text()
 		// fmt.Printf("lowmem line:'%v'\n", line)
 		if lineNumber != 1 {
@@ -45,8 +31,25 @@ func RunFiltersLowMem(scanner *bufio.Scanner, flags model.ProgramFlags, printRow
 		fmt.Printf("error on line %v: %v", lineNumber, err)
 	}
 
+	fmt.Printf("\nRunFiltersLowMem returning matches:%v, lineNumber:%v\n", matches, lineNumber)
 	return matches, lineNumber
 
+}
+
+func RunFiltersHighMem(lines []string, flags model.ProgramFlags, printRows bool) (int, int) {
+
+	lineNumber := 0
+	matches := 0
+	for _, line := range lines {
+		lineNumber++
+		fmt.Printf("highmem lineNumber:'%v'\n", lineNumber)
+		if lineNumber != 1 && line != "" {
+			matches = handleLine(line, flags, matches, printRows)
+		}
+	}
+
+	fmt.Printf("\nXXX RunFiltersHighMem returning matches:%v, lineNumber:%v\n", matches, lineNumber)
+	return matches, lineNumber
 }
 
 //TODO - test on this level now it is called from 2 places?
@@ -56,6 +59,7 @@ func handleLine(line string, flags model.ProgramFlags, matches int, printRows bo
 
 	if rowMatchesFlags(fileRow, flags) {
 
+		//this shifts out, and the line as well as the incremented matches must be returned
 		plot, err := common.LookupPlot(fileRow.Tconst)
 
 		if err != nil {
@@ -68,7 +72,6 @@ func handleLine(line string, flags model.ProgramFlags, matches int, printRows bo
 		if flags.PlotFilterFlag != "" {
 
 			match, _ := regexp.MatchString(flags.PlotFilterFlag, fileRow.Plot)
-			// fmt.Printf("\nmatch:%v\n", match)
 
 			if match {
 				matches++
@@ -86,6 +89,7 @@ func handleLine(line string, flags model.ProgramFlags, matches int, printRows bo
 
 	}
 
+	fmt.Printf("\nhandleLine returning matches:%v\n", matches)
 	return matches
 }
 

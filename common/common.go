@@ -11,12 +11,23 @@ import (
 
 func LookupPlot(tconst string) (string, error) {
 
-	// time curl "https://www.omdbapi.com/?i=tt0000075&apikey=591edae0"
-	// {"Title":"Escamotage d'une dame au théâtre Robert Houdin","Year":"1896","Rated":"N/A","Released":"01 Oct 1896","Runtime":"1 min","Genre":"Short, Horror","Director":"Georges Méliès","Writer":"N/A","Actors":"Jehanne d'Alcy, Georges Méliès","Plot":"As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile, much to our amazement, the lady vanishes into thin air.","Language":"None","Country":"France","Awards":"N/A","Poster":"https://m.media-amazon.com/images/M/MV5BNGRhNTcxMDMtYTMyMi00ZTIxLThiOWUtMTgwZDA2Njk4YTFjXkEyXkFqcGdeQXVyNDE5MTU2MDE@._V1_SX300.jpg","Ratings":[{"Source":"Internet Movie Database","Value":"6.3/10"}],"Metascore":"N/A","imdbRating":"6.3","imdbVotes":"1,665","imdbID":"tt0000075","Type":"movie","DVD":"N/A","BoxOffice":"N/A","Production":"N/A","Website":"N/A","Response":"True"}
-	//curl "https://www.omdbapi.com/?i=tt0000075&apikey=591edae0"  0.02s user 0.06s system 57% cpu 0.155 total
+	// 	./curltime "https://www.omdbapi.com/?i=tt0000075&apikey=591edae0"
+	//     time_namelookup:  0.002087s
+	//        time_connect:  0.008398s
+	//     time_appconnect:  0.036539is
+	//    time_pretransfer:  0.036783s
+	//       time_redirect:  0.000000s
+	//  time_starttransfer:  0.052927s
+	//                     ----------
+	//          time_total:  0.053134s
+
+	//So 53ms per plot lookup
+
+	//if you have an overall 30 sec timeout to return to the user
+	//30 / (53/1000) = 566 rows max
 
 	//sleep for between 10 and 20 milliseconds
-	sleepForRandomTime()
+	//sleepForRandomTime()
 
 	return "As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile, much to our amazement, the lady vanishes into thin air.", nil
 
