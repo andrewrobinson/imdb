@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
 	"time"
 
 	"github.com/andrewrobinson/imdb/common"
@@ -70,7 +71,7 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	filteredFileRows, highestLineNumber := filter.RunFilters(scanner, flags)
 
-	rowsWithPlots := lookupPlots(filteredFileRows)
+	rowsWithPlots := lookupPlots(filteredFileRows, flags)
 
 	if printRows {
 		fmt.Printf("filteredFileRows:%+v\n", rowsWithPlots)
@@ -82,7 +83,7 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 }
 
-func lookupPlots(filteredFileRows []model.FileRow) []model.FileRow {
+func lookupPlots(filteredFileRows []model.FileRow, flags model.ProgramFlags) []model.FileRow {
 
 	var rowsWithPlots []model.FileRow
 
@@ -97,7 +98,17 @@ func lookupPlots(filteredFileRows []model.FileRow) []model.FileRow {
 
 		fileRow.Plot = plot
 
-		rowsWithPlots = append(rowsWithPlots, fileRow)
+		if flags.PlotFilterFlag != "" {
+
+			match, _ := regexp.MatchString(flags.PlotFilterFlag, fileRow.Plot)
+
+			if match {
+				rowsWithPlots = append(rowsWithPlots, fileRow)
+			}
+
+		} else {
+			rowsWithPlots = append(rowsWithPlots, fileRow)
+		}
 
 	}
 
