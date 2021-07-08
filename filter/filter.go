@@ -11,14 +11,14 @@ import (
 	"github.com/andrewrobinson/imdb/model"
 )
 
-func RunFiltersLowMem(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int) {
+func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int) {
 
 	lineNumber := 0
 	matches := 0
 	for scanner.Scan() {
 
 		lineNumber++
-		fmt.Printf("lowmem lineNumber:'%v'\n", lineNumber)
+		// fmt.Printf("lowmem lineNumber:'%v'\n", lineNumber)
 		line := scanner.Text()
 		// fmt.Printf("lowmem line:'%v'\n", line)
 		if lineNumber != 1 {
@@ -31,28 +31,11 @@ func RunFiltersLowMem(scanner *bufio.Scanner, flags model.ProgramFlags, printRow
 		fmt.Printf("error on line %v: %v", lineNumber, err)
 	}
 
-	fmt.Printf("\nRunFiltersLowMem returning matches:%v, lineNumber:%v\n", matches, lineNumber)
+	// fmt.Printf("\nRunFilters returning matches:%v, lineNumber:%v\n", matches, lineNumber)
 	return matches, lineNumber
 
 }
 
-func RunFiltersHighMem(lines []string, flags model.ProgramFlags, printRows bool) (int, int) {
-
-	lineNumber := 0
-	matches := 0
-	for _, line := range lines {
-		lineNumber++
-		fmt.Printf("highmem lineNumber:'%v'\n", lineNumber)
-		if lineNumber != 1 && line != "" {
-			matches = handleLine(line, flags, matches, printRows)
-		}
-	}
-
-	fmt.Printf("\nXXX RunFiltersHighMem returning matches:%v, lineNumber:%v\n", matches, lineNumber)
-	return matches, lineNumber
-}
-
-//TODO - test on this level now it is called from 2 places?
 func handleLine(line string, flags model.ProgramFlags, matches int, printRows bool) int {
 	fields := strings.Split(line, "\t")
 	fileRow := common.BuildFileRow(fields)
@@ -89,7 +72,7 @@ func handleLine(line string, flags model.ProgramFlags, matches int, printRows bo
 
 	}
 
-	fmt.Printf("\nhandleLine returning matches:%v\n", matches)
+	// fmt.Printf("\nhandleLine returning matches:%v\n", matches)
 	return matches
 }
 

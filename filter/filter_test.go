@@ -104,33 +104,6 @@ func TestRunFilters(t *testing.T) {
 }
 
 func genericTest(t *testing.T, flags model.ProgramFlags, expectedMatches int, expectedHighestLineNumber int) {
-	genericTestLowMem(t, flags, expectedMatches, expectedHighestLineNumber)
-	// genericTestHighMem(t, flags, expectedMatches, expectedHighestLineNumber)
-}
-
-// func genericTestHighMem(t *testing.T, flags model.ProgramFlags, expectedMatches int, expectedHighestLineNumber int) {
-
-// 	file, err := os.Open("../title.basics.truncated.tsv")
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-// 	defer file.Close()
-
-// 	scanner := bufio.NewScanner(file)
-
-// 	//RunFiltersLowMem(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int)
-// 	matches, highestLineNumber := RunFiltersHighMem(scanner, flags, false)
-
-// 	//RunFiltersHighMem(lines []string, flags model.ProgramFlags, printRows bool) (int, int) {
-// 	// matches, highestLineNumber := RunFiltersHighMem(scanner, flags, false)
-
-// 	if matches != expectedMatches || highestLineNumber != expectedHighestLineNumber {
-// 		t.Errorf("got (%d, %d); wanted (%d, %d)", matches, highestLineNumber, expectedMatches, expectedHighestLineNumber)
-// 	}
-
-// }
-
-func genericTestLowMem(t *testing.T, flags model.ProgramFlags, expectedMatches int, expectedHighestLineNumber int) {
 
 	file, err := os.Open("../title.basics.truncated.tsv")
 	if err != nil {
@@ -141,7 +114,7 @@ func genericTestLowMem(t *testing.T, flags model.ProgramFlags, expectedMatches i
 	scanner := bufio.NewScanner(file)
 
 	//RunFiltersLowMem(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int)
-	matches, highestLineNumber := RunFiltersLowMem(scanner, flags, false)
+	matches, highestLineNumber := RunFilters(scanner, flags, false)
 
 	//RunFiltersHighMem(lines []string, flags model.ProgramFlags, printRows bool) (int, int) {
 	// matches, highestLineNumber := RunFiltersHighMem(scanner, flags, false)
@@ -164,6 +137,6 @@ func BenchmarkRunFiltersAndPrint(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		scanner := bufio.NewScanner(file)
-		RunFiltersLowMem(scanner, flags, false)
+		RunFilters(scanner, flags, false)
 	}
 }

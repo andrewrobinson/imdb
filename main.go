@@ -3,9 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/andrewrobinson/imdb/common"
@@ -13,34 +11,9 @@ import (
 	"github.com/andrewrobinson/imdb/model"
 )
 
-//go build
+// --maxRunTime=30 --filePath=../title.basics.tsv
 
-// ./imdb --processingType=lowmem --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
-// 12-24ms
-
-// ./imdb --processingType=highmem --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
-// 11-23ms
-
-// ./imdb --processingType=lowmem --filePath=../title.basics.tsv --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
-
-// 4.5-5.6s
-
-// ./imdb --processingType=highmem --filePath=../title.basics.tsv --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
-// 4.2-4.8s
-
-// ./imdb --processingType=lowmem --filePath=../title.basics.tsv
-// why so slow?
-
-// ./imdb --processingType=highmem --filePath=../title.basics.tsv
-// why so slow?
-
-//TODO - memory profile
-//TODO - docker - for profiling environment too
-
-//TODO - time some alternative ways of reading this file
-// https://hackernoon.com/leveraging-multithreading-to-read-large-files-faster-in-go-lmn32t7
-// https://blog.cloudboost.io/reading-humongous-files-in-go-c894b05ac020
-// https://stackoverflow.com/questions/52154609/fastest-way-of-reading-huge-file-in-go-lang-with-small-ram/52154800
+// go run main.go --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
 
 func main() {
 
@@ -51,25 +24,16 @@ func main() {
 
 	start := time.Now()
 
-	//fmt.Printf("%v - main() invoked\n", start)
-	//maxRunTime := 30 * time.Second
-
 	flags := common.BuildProgramFlags()
 	if printFlags {
 		fmt.Printf("Flags passed: %+v\n", flags)
 	}
 
-	switch flags.ProcessingTypeFlag {
-	case "lowmem":
-		fmt.Println("XX lowmem selected")
-		processFileLowMem(flags, printRows, printMatches)
-	case "highmem":
-		fmt.Println("XX highmem selected")
-		processFileHighMem(flags, printRows, printMatches)
-	default:
-		fmt.Println("XX invalid or no processingType Flag specified, aborting")
-		os.Exit(1)
-	}
+	//fmt.Printf("%v - main() invoked\n", start)
+	// maxRunTime := time.Duration(flags.MaxRunTimeFlag) * time.Second
+	// fmt.Printf("XX maxRunTime:%v\n", maxRunTime)
+
+	processFile(flags, printRows, printMatches)
 
 	//a
 	// time.Sleep(maxRunTime)
@@ -86,7 +50,7 @@ func main() {
 
 }
 
-func processFileLowMem(flags model.ProgramFlags, printRows bool, printMatches bool) {
+func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	file, err := os.Open(flags.FilePathFlag)
 	if err != nil {
@@ -95,35 +59,9 @@ func processFileLowMem(flags model.ProgramFlags, printRows bool, printMatches bo
 	}
 	defer file.Close()
 
-	//https://golangdocs.com/reading-files-in-golang
-	//https://devmarkpro.com/working-big-files-golang
-	//https://golang.org/pkg/bufio/#Scanner
-	//https://stackoverflow.com/questions/64638136/performance-issues-while-reading-a-file-line-by-line-with-bufio-newscanner
 	scanner := bufio.NewScanner(file)
 
-	matches, highestLineNumber := filter.RunFiltersLowMem(scanner, flags, printRows)
-
-	if printMatches {
-		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", matches, highestLineNumber)
-	}
-
-}
-
-func processFileHighMem(flags model.ProgramFlags, printRows bool, printMatches bool) {
-
-	content, err := ioutil.ReadFile(flags.FilePathFlag)
-	if err != nil {
-		fmt.Println("Err")
-	}
-
-	lines := strings.Split(string(content), "\n")
-
-	// fmt.Printf("len stringContent: %v\n", len(stringContent))
-	fmt.Printf("XXX len lines: %v\n", len(lines))
-
-	matches, highestLineNumber := filter.RunFiltersHighMem(lines, flags, printRows)
-
-	fmt.Printf("XXX after filter.RunFiltersHighMem, printMatches: %v\n", printMatches)
+	matches, highestLineNumber := filter.RunFilters(scanner, flags, printRows)
 
 	if printMatches {
 		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", matches, highestLineNumber)

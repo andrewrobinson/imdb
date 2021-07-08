@@ -9,15 +9,10 @@ type ProgramFlags struct {
 	EndYearFlag        string
 	RuntimeMinutesFlag string
 	GenresFlag         string
+	MaxApiRequestsFlag int
+	MaxRunTimeFlag     int
+	MaxRequestsFlag    int
 	PlotFilterFlag     string
-	ProcessingTypeFlag string
-
-	// TODO
-	// maxApiRequests - maximum number of requests to be made to omdbapi
-	// maxRunTime - maximum run time of the application. Format is a time.Duration string see here
-	// maxRequests - maximum number of requests to send to omdbapi
-	// plotFilter - regex pattern to apply to the plot of a film retrieved from omdbapi
-
 }
 
 type FileRow struct {

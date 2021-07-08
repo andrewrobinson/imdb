@@ -10,27 +10,9 @@ import (
 )
 
 func LookupPlot(tconst string) (string, error) {
-
-	// 	./curltime "https://www.omdbapi.com/?i=tt0000075&apikey=591edae0"
-	//     time_namelookup:  0.002087s
-	//        time_connect:  0.008398s
-	//     time_appconnect:  0.036539is
-	//    time_pretransfer:  0.036783s
-	//       time_redirect:  0.000000s
-	//  time_starttransfer:  0.052927s
-	//                     ----------
-	//          time_total:  0.053134s
-
-	//So 53ms per plot lookup
-
-	//if you have an overall 30 sec timeout to return to the user
-	//30 / (53/1000) = 566 rows max
-
-	//sleep for between 10 and 20 milliseconds
-	//sleepForRandomTime()
-
+	// "https://www.omdbapi.com/?i=tt0000075&apikey=591edae0"
+	//TODO - make a localhost call
 	return "As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile, much to our amazement, the lady vanishes into thin air.", nil
-
 }
 
 func sleepForRandomTime() {
@@ -51,8 +33,10 @@ func BuildProgramFlags() model.ProgramFlags {
 	endYearFlag := flag.String("endYear", "", "")
 	runtimeMinutesFlag := flag.String("runtimeMinutes", "", "")
 	genresFlag := flag.String("genres", "", "")
+	maxApiRequestsFlag := flag.Int("maxApiRequests", 300, "")
+	maxRunTimeFlag := flag.Int("maxRunTime", 30, "")
+	maxRequestsFlag := flag.Int("maxRequests", 300, "")
 	plotFilterFlag := flag.String("plotFilter", "", "")
-	processingTypeFlag := flag.String("processingType", "lowmem", "lowmem or highmem")
 
 	flag.Parse()
 
@@ -64,8 +48,11 @@ func BuildProgramFlags() model.ProgramFlags {
 		EndYearFlag:        *endYearFlag,
 		RuntimeMinutesFlag: *runtimeMinutesFlag,
 		GenresFlag:         *genresFlag,
+		MaxApiRequestsFlag: *maxApiRequestsFlag,
+		MaxRunTimeFlag:     *maxRunTimeFlag,
+		MaxRequestsFlag:    *maxRequestsFlag,
 		PlotFilterFlag:     *plotFilterFlag,
-		ProcessingTypeFlag: *processingTypeFlag}
+	}
 	return flagStruct
 
 }
