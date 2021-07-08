@@ -10,6 +10,9 @@ import (
 )
 
 func LookupPlot(tconst string) (string, error) {
+
+	// https://raw.githubusercontent.com/andrewrobinson/imdb/main/tt0000075.json
+
 	// "https://www.omdbapi.com/?i=tt0000075&apikey=591edae0"
 	//TODO - make a localhost call
 	return "As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile, much to our amazement, the lady vanishes into thin air.", nil
@@ -59,7 +62,7 @@ func BuildProgramFlags() model.ProgramFlags {
 
 func BuildFileRow(fields []string) model.FileRow {
 
-	rowStruct := model.FileRow{
+	return model.FileRow{
 		Tconst:         fields[0],
 		TitleType:      fields[1],
 		PrimaryTitle:   fields[2],
@@ -70,7 +73,6 @@ func BuildFileRow(fields []string) model.FileRow {
 		RuntimeMinutes: fields[7],
 		Genres:         fields[8],
 	}
-	return rowStruct
 
 }
 

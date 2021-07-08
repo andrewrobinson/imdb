@@ -61,6 +61,11 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	scanner := bufio.NewScanner(file)
 
+	// a := make([]FileRow, 5) // len(a)=5
+
+	// b := make([]FileRow, 0, 5) // len(b)=0, cap(b)=5
+	// lines []string
+
 	matches, highestLineNumber := filter.RunFilters(scanner, flags, printRows)
 
 	if printMatches {
