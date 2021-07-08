@@ -16,7 +16,7 @@ func TestRunFilters(t *testing.T) {
 
 	t.Run("no filters", func(t *testing.T) {
 		emptyFlags := model.ProgramFlags{}
-		genericTest(t, emptyFlags, 75, 75)
+		genericTest(t, emptyFlags, 74, 75)
 	})
 
 	t.Run("--genres=Comedy", func(t *testing.T) {
@@ -104,6 +104,33 @@ func TestRunFilters(t *testing.T) {
 }
 
 func genericTest(t *testing.T, flags model.ProgramFlags, expectedMatches int, expectedHighestLineNumber int) {
+	genericTestLowMem(t, flags, expectedMatches, expectedHighestLineNumber)
+	// genericTestHighMem(t, flags, expectedMatches, expectedHighestLineNumber)
+}
+
+// func genericTestHighMem(t *testing.T, flags model.ProgramFlags, expectedMatches int, expectedHighestLineNumber int) {
+
+// 	file, err := os.Open("../title.basics.truncated.tsv")
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	defer file.Close()
+
+// 	scanner := bufio.NewScanner(file)
+
+// 	//RunFiltersLowMem(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int)
+// 	matches, highestLineNumber := RunFiltersHighMem(scanner, flags, false)
+
+// 	//RunFiltersHighMem(lines []string, flags model.ProgramFlags, printRows bool) (int, int) {
+// 	// matches, highestLineNumber := RunFiltersHighMem(scanner, flags, false)
+
+// 	if matches != expectedMatches || highestLineNumber != expectedHighestLineNumber {
+// 		t.Errorf("got (%d, %d); wanted (%d, %d)", matches, highestLineNumber, expectedMatches, expectedHighestLineNumber)
+// 	}
+
+// }
+
+func genericTestLowMem(t *testing.T, flags model.ProgramFlags, expectedMatches int, expectedHighestLineNumber int) {
 
 	file, err := os.Open("../title.basics.truncated.tsv")
 	if err != nil {
@@ -113,7 +140,11 @@ func genericTest(t *testing.T, flags model.ProgramFlags, expectedMatches int, ex
 
 	scanner := bufio.NewScanner(file)
 
-	matches, highestLineNumber := RunFilters(scanner, flags, false)
+	//RunFiltersLowMem(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int)
+	matches, highestLineNumber := RunFiltersLowMem(scanner, flags, false)
+
+	//RunFiltersHighMem(lines []string, flags model.ProgramFlags, printRows bool) (int, int) {
+	// matches, highestLineNumber := RunFiltersHighMem(scanner, flags, false)
 
 	if matches != expectedMatches || highestLineNumber != expectedHighestLineNumber {
 		t.Errorf("got (%d, %d); wanted (%d, %d)", matches, highestLineNumber, expectedMatches, expectedHighestLineNumber)
@@ -133,6 +164,6 @@ func BenchmarkRunFiltersAndPrint(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		scanner := bufio.NewScanner(file)
-		RunFilters(scanner, flags, false)
+		RunFiltersLowMem(scanner, flags, false)
 	}
 }

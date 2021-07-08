@@ -26,7 +26,7 @@ func RunFiltersHighMem(lines []string, flags model.ProgramFlags, printRows bool)
 	return matches, lineNumber
 }
 
-func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int) {
+func RunFiltersLowMem(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int) {
 
 	lineNumber := 0
 	matches := 0

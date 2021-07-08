@@ -113,7 +113,7 @@ func processFileLowMem(flags model.ProgramFlags, printRows bool, printMatches bo
 	//https://stackoverflow.com/questions/64638136/performance-issues-while-reading-a-file-line-by-line-with-bufio-newscanner
 	scanner := bufio.NewScanner(file)
 
-	matches, highestLineNumber := filter.RunFilters(scanner, flags, printRows)
+	matches, highestLineNumber := filter.RunFiltersLowMem(scanner, flags, printRows)
 
 	if printMatches {
 		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", matches, highestLineNumber)
