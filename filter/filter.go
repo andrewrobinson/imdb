@@ -3,26 +3,32 @@ package filter
 import (
 	"bufio"
 	"fmt"
-	"os"
-	"regexp"
 	"strings"
 
 	"github.com/andrewrobinson/imdb/common"
 	"github.com/andrewrobinson/imdb/model"
 )
 
-func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int) {
+func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags) ([]model.FileRow, int) {
 
 	lineNumber := 0
-	matches := 0
+
+	var filteredFileRows []model.FileRow
+	// filteredFileRows := make([]model.FileRow, 5)
+
 	for scanner.Scan() {
 
 		lineNumber++
-		// fmt.Printf("lowmem lineNumber:'%v'\n", lineNumber)
 		line := scanner.Text()
-		// fmt.Printf("lowmem line:'%v'\n", line)
 		if lineNumber != 1 {
-			matches = handleLine(line, flags, matches, printRows)
+
+			fields := strings.Split(line, "\t")
+			fileRow := common.BuildFileRow(fields)
+
+			if rowMatchesFlags(fileRow, flags) {
+				filteredFileRows = append(filteredFileRows, fileRow)
+			}
+
 		}
 
 	}
@@ -32,49 +38,49 @@ func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool
 	}
 
 	// fmt.Printf("\nRunFilters returning matches:%v, lineNumber:%v\n", matches, lineNumber)
-	return matches, lineNumber
+	return filteredFileRows, lineNumber
 
 }
 
-func handleLine(line string, flags model.ProgramFlags, matches int, printRows bool) int {
-	fields := strings.Split(line, "\t")
-	fileRow := common.BuildFileRow(fields)
+// func handleLine(line string, flags model.ProgramFlags, matches int, printRows bool) int {
+// 	fields := strings.Split(line, "\t")
+// 	fileRow := common.BuildFileRow(fields)
 
-	if rowMatchesFlags(fileRow, flags) {
+// 	if rowMatchesFlags(fileRow, flags) {
 
-		//this shifts out, and the line as well as the incremented matches must be returned
-		plot, err := common.LookupPlot(fileRow.Tconst)
+// 		//this shifts out, and the line as well as the incremented matches must be returned
+// 		plot, err := common.LookupPlot(fileRow.Tconst)
 
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+// 		if err != nil {
+// 			fmt.Println(err)
+// 			os.Exit(1)
+// 		}
 
-		fileRow.Plot = plot
+// 		fileRow.Plot = plot
 
-		if flags.PlotFilterFlag != "" {
+// 		if flags.PlotFilterFlag != "" {
 
-			match, _ := regexp.MatchString(flags.PlotFilterFlag, fileRow.Plot)
+// 			match, _ := regexp.MatchString(flags.PlotFilterFlag, fileRow.Plot)
 
-			if match {
-				matches++
-				if printRows {
-					common.PrintFields(fileRow)
-				}
-			}
+// 			if match {
+// 				matches++
+// 				if printRows {
+// 					common.PrintFields(fileRow)
+// 				}
+// 			}
 
-		} else {
-			matches++
-			if printRows {
-				common.PrintFields(fileRow)
-			}
-		}
+// 		} else {
+// 			matches++
+// 			if printRows {
+// 				common.PrintFields(fileRow)
+// 			}
+// 		}
 
-	}
+// 	}
 
-	// fmt.Printf("\nhandleLine returning matches:%v\n", matches)
-	return matches
-}
+// 	// fmt.Printf("\nhandleLine returning matches:%v\n", matches)
+// 	return matches
+// }
 
 func rowMatchesFlags(row model.FileRow, flags model.ProgramFlags) bool {
 

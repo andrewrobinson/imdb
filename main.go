@@ -15,10 +15,17 @@ import (
 
 // go run main.go --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
 
+//go test . ./...
+
 func main() {
 
+	// https://www.yellowduck.be/posts/graceful-shutdown/
+	// https://www.yellowduck.be/posts/waitgroup-channels/
+	// https://medium.com/code-zen/concurrency-in-go-5fcba11acb0f
+	// https://stackoverflow.com/questions/36056615/what-is-the-advantage-of-sync-waitgroup-over-channels
+
 	printFlags := false
-	printRows := false
+	printRows := true
 	printMatches := true
 	printDuration := true
 
@@ -61,15 +68,40 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	scanner := bufio.NewScanner(file)
 
-	// a := make([]FileRow, 5) // len(a)=5
+	filteredFileRows, highestLineNumber := filter.RunFilters(scanner, flags)
 
-	// b := make([]FileRow, 0, 5) // len(b)=0, cap(b)=5
-	// lines []string
+	filteredFileRows = lookupPlots(filteredFileRows)
 
-	matches, highestLineNumber := filter.RunFilters(scanner, flags, printRows)
+	if printRows {
 
-	if printMatches {
-		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", matches, highestLineNumber)
+		// common.PrintFields
+		// fmt.Printf("%+v\n", row)
+
+		fmt.Printf("filteredFileRows:%+v\n", filteredFileRows)
 	}
 
+	if printMatches {
+		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", len(filteredFileRows), highestLineNumber)
+	}
+
+}
+
+func lookupPlots(filteredFileRows []model.FileRow) []model.FileRow {
+
+	for _, fileRow := range filteredFileRows {
+
+		plot, err := common.LookupPlot(fileRow.Tconst)
+
+		if err != nil {
+			fmt.Printf("error while looking up plots:%+v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("XX assigning plot:%+v\n", plot)
+		//TODO - this doesn't modify it
+		fileRow.Plot = plot
+
+	}
+
+	return filteredFileRows
 }

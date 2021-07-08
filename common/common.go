@@ -85,6 +85,6 @@ func PrintFields(row model.FileRow) {
 	// IMDB_ID     |   Title               |   Plot
 	// tt0000005   |   Blacksmith Scene    |   Three men hammer on an anvil and pass a bottle of beer around.
 
-	// fmt.Printf("%+v\n", row)
-	fmt.Println(row)
+	fmt.Printf("%+v\n", row)
+	// fmt.Println(row)
 }
