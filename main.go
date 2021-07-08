@@ -70,23 +70,21 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	filteredFileRows, highestLineNumber := filter.RunFilters(scanner, flags)
 
-	filteredFileRows = lookupPlots(filteredFileRows)
+	rowsWithPlots := lookupPlots(filteredFileRows)
 
 	if printRows {
-
-		// common.PrintFields
-		// fmt.Printf("%+v\n", row)
-
-		fmt.Printf("filteredFileRows:%+v\n", filteredFileRows)
+		fmt.Printf("filteredFileRows:%+v\n", rowsWithPlots)
 	}
 
 	if printMatches {
-		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", len(filteredFileRows), highestLineNumber)
+		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", len(rowsWithPlots), highestLineNumber)
 	}
 
 }
 
 func lookupPlots(filteredFileRows []model.FileRow) []model.FileRow {
+
+	var rowsWithPlots []model.FileRow
 
 	for _, fileRow := range filteredFileRows {
 
@@ -97,11 +95,11 @@ func lookupPlots(filteredFileRows []model.FileRow) []model.FileRow {
 			os.Exit(1)
 		}
 
-		fmt.Printf("XX assigning plot:%+v\n", plot)
-		//TODO - this doesn't modify it
 		fileRow.Plot = plot
+
+		rowsWithPlots = append(rowsWithPlots, fileRow)
 
 	}
 
-	return filteredFileRows
+	return rowsWithPlots
 }
