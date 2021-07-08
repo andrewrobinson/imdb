@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"regexp"
 	"time"
 
 	"github.com/andrewrobinson/imdb/common"
 	"github.com/andrewrobinson/imdb/filter"
 	"github.com/andrewrobinson/imdb/model"
+	"github.com/andrewrobinson/imdb/plot"
 )
 
 // --maxRunTime=30 --filePath=../title.basics.tsv
@@ -37,7 +37,7 @@ func main() {
 		fmt.Printf("Flags passed: %+v\n", flags)
 	}
 
-	//fmt.Printf("%v - main() invoked\n", start)
+	// fmt.Printf("%v - main() invoked\n", start)
 	// maxRunTime := time.Duration(flags.MaxRunTimeFlag) * time.Second
 	// fmt.Printf("XX maxRunTime:%v\n", maxRunTime)
 
@@ -71,7 +71,7 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	filteredFileRows, highestLineNumber := filter.RunFilters(scanner, flags)
 
-	rowsWithPlots := lookupPlots(filteredFileRows, flags)
+	rowsWithPlots := plot.LookupPlots(filteredFileRows, flags)
 
 	if printRows {
 		fmt.Printf("filteredFileRows:%+v\n", rowsWithPlots)
@@ -81,36 +81,4 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", len(rowsWithPlots), highestLineNumber)
 	}
 
-}
-
-func lookupPlots(filteredFileRows []model.FileRow, flags model.ProgramFlags) []model.FileRow {
-
-	var rowsWithPlots []model.FileRow
-
-	for _, fileRow := range filteredFileRows {
-
-		plot, err := common.LookupPlot(fileRow.Tconst)
-
-		if err != nil {
-			fmt.Printf("error while looking up plots:%+v\n", err)
-			os.Exit(1)
-		}
-
-		fileRow.Plot = plot
-
-		if flags.PlotFilterFlag != "" {
-
-			match, _ := regexp.MatchString(flags.PlotFilterFlag, fileRow.Plot)
-
-			if match {
-				rowsWithPlots = append(rowsWithPlots, fileRow)
-			}
-
-		} else {
-			rowsWithPlots = append(rowsWithPlots, fileRow)
-		}
-
-	}
-
-	return rowsWithPlots
 }

@@ -14,7 +14,6 @@ func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags) ([]model.FileR
 	lineNumber := 0
 
 	var filteredFileRows []model.FileRow
-	// filteredFileRows := make([]model.FileRow, 5)
 
 	for scanner.Scan() {
 
@@ -37,50 +36,9 @@ func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags) ([]model.FileR
 		fmt.Printf("error on line %v: %v", lineNumber, err)
 	}
 
-	// fmt.Printf("\nRunFilters returning matches:%v, lineNumber:%v\n", matches, lineNumber)
 	return filteredFileRows, lineNumber
 
 }
-
-// func handleLine(line string, flags model.ProgramFlags, matches int, printRows bool) int {
-// 	fields := strings.Split(line, "\t")
-// 	fileRow := common.BuildFileRow(fields)
-
-// 	if rowMatchesFlags(fileRow, flags) {
-
-// 		//this shifts out, and the line as well as the incremented matches must be returned
-// 		plot, err := common.LookupPlot(fileRow.Tconst)
-
-// 		if err != nil {
-// 			fmt.Println(err)
-// 			os.Exit(1)
-// 		}
-
-// 		fileRow.Plot = plot
-
-// 		if flags.PlotFilterFlag != "" {
-
-// 			match, _ := regexp.MatchString(flags.PlotFilterFlag, fileRow.Plot)
-
-// 			if match {
-// 				matches++
-// 				if printRows {
-// 					common.PrintFields(fileRow)
-// 				}
-// 			}
-
-// 		} else {
-// 			matches++
-// 			if printRows {
-// 				common.PrintFields(fileRow)
-// 			}
-// 		}
-
-// 	}
-
-// 	// fmt.Printf("\nhandleLine returning matches:%v\n", matches)
-// 	return matches
-// }
 
 func rowMatchesFlags(row model.FileRow, flags model.ProgramFlags) bool {
 

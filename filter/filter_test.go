@@ -84,6 +84,8 @@ func TestRunFilters(t *testing.T) {
 		genericTest(t, flags, 1, 75)
 	})
 
+	//TODO - plot regex matching has moved to another function so it needs to be tested there now
+
 	//all rows currently have the plot for the below film hardcoded to save on limited api requests allowed:
 
 	//"As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile,
@@ -113,11 +115,7 @@ func genericTest(t *testing.T, flags model.ProgramFlags, expectedMatches int, ex
 
 	scanner := bufio.NewScanner(file)
 
-	//RunFiltersLowMem(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int)
 	matchingFileRows, highestLineNumber := RunFilters(scanner, flags)
-
-	//RunFiltersHighMem(lines []string, flags model.ProgramFlags, printRows bool) (int, int) {
-	// matches, highestLineNumber := RunFiltersHighMem(scanner, flags, false)
 
 	if len(matchingFileRows) != expectedMatches || highestLineNumber != expectedHighestLineNumber {
 		t.Errorf("got (%d, %d); wanted (%d, %d)", len(matchingFileRows), highestLineNumber, expectedMatches, expectedHighestLineNumber)
