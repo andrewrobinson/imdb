@@ -18,9 +18,7 @@ func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool
 	for scanner.Scan() {
 
 		lineNumber++
-		// fmt.Printf("lowmem lineNumber:'%v'\n", lineNumber)
 		line := scanner.Text()
-		// fmt.Printf("lowmem line:'%v'\n", line)
 		if lineNumber != 1 {
 			matches = handleLine(line, flags, matches, printRows)
 		}
@@ -31,7 +29,6 @@ func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool
 		fmt.Printf("error on line %v: %v", lineNumber, err)
 	}
 
-	// fmt.Printf("\nRunFilters returning matches:%v, lineNumber:%v\n", matches, lineNumber)
 	return matches, lineNumber
 
 }
@@ -42,7 +39,6 @@ func handleLine(line string, flags model.ProgramFlags, matches int, printRows bo
 
 	if rowMatchesFlags(fileRow, flags) {
 
-		//this shifts out, and the line as well as the incremented matches must be returned
 		plot, err := common.LookupPlot(fileRow.Tconst)
 
 		if err != nil {
@@ -72,7 +68,6 @@ func handleLine(line string, flags model.ProgramFlags, matches int, printRows bo
 
 	}
 
-	// fmt.Printf("\nhandleLine returning matches:%v\n", matches)
 	return matches
 }
 

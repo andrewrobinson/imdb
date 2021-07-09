@@ -29,24 +29,12 @@ func main() {
 		fmt.Printf("Flags passed: %+v\n", flags)
 	}
 
-	//fmt.Printf("%v - main() invoked\n", start)
-	// maxRunTime := time.Duration(flags.MaxRunTimeFlag) * time.Second
-	// fmt.Printf("XX maxRunTime:%v\n", maxRunTime)
-
 	processFile(flags, printRows, printMatches)
-
-	//a
-	// time.Sleep(maxRunTime)
-
-	//b is equiv to a
-	// sleep := time.After(maxRunTime)
-	// <-sleep
 
 	elapsed := time.Since(start)
 	if printDuration {
 		fmt.Printf("finished, elapsed time:%v\n", elapsed)
 	}
-	// os.Exit(1)
 
 }
 
@@ -60,11 +48,6 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-
-	// a := make([]FileRow, 5) // len(a)=5
-
-	// b := make([]FileRow, 0, 5) // len(b)=0, cap(b)=5
-	// lines []string
 
 	matches, highestLineNumber := filter.RunFilters(scanner, flags, printRows)
 
