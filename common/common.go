@@ -11,16 +11,20 @@ import (
 
 func LookupPlot(tconst string) (string, error) {
 
+	//TODO - make a localhost call or something
 	// https://raw.githubusercontent.com/andrewrobinson/imdb/main/tt0000075.json
 
+	// the real one but limited to 1000 a day
 	// "https://www.omdbapi.com/?i=tt0000075&apikey=591edae0"
-	//TODO - make a localhost call
+
+	//this waits 10-20ms, the actual call is about 53ms
+	sleepForRandomTime()
 	return "As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile, much to our amazement, the lady vanishes into thin air.", nil
 }
 
 func sleepForRandomTime() {
 	rand.Seed(time.Now().UnixNano())
-	n := rand.Intn(10) // n will be between 0 and 10
+	n := rand.Intn(10)
 	// fmt.Printf("Sleeping %d milliseconds...\n", 10+n)
 	time.Sleep(time.Duration(10+n) * time.Millisecond)
 	// fmt.Println("Done")

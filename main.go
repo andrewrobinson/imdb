@@ -13,12 +13,14 @@ import (
 
 // --maxRunTime=30 --filePath=../title.basics.tsv
 
+// go run main.go --filePath=../title.basics.tsv --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
+
 // go run main.go --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
 
 func main() {
 
 	printFlags := false
-	printRows := false
+	printRows := true
 	printMatches := true
 	printDuration := true
 
