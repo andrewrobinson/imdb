@@ -17,6 +17,10 @@ import (
 LookupPlotsInParallel using ConcurrencyFactor:20 and RateLimitPerSecond:100
 When hitting https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727dfadb65a3faccd6786a099dce5ef/static/tt0000075.json
 
+
+//1 row
+// go run main.go --filePath=../title.basics.tsv --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
+
 //10 rows - 4.24 seconds
 //go run main.go --primaryTitle=Almodovar --filePath=../title.basics.tsv
 
@@ -98,7 +102,7 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 	filteredRowsWithPlots := plot.AddPlotsAndMaybeRegexFilter(filteredRows, plotMap, flags)
 
 	if printRows {
-		fmt.Println("IMDB_ID	Title	Plot")
+		fmt.Println("IMDB_ID	|	Title	|	Plot")
 		for _, row := range filteredRowsWithPlots {
 			common.PrintRow(row)
 		}

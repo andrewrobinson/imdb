@@ -35,6 +35,10 @@ func AddPlotsAndMaybeRegexFilter(filteredFileRows []model.FileRow, mapOfTconstTo
 
 func LookupPlotsInParallel(filteredFileRows []model.FileRow, flags model.ProgramFlags) map[string]string {
 	urls := buildMapOfTconstToUrl(filteredFileRows)
+
+	// fmt.Printf("urls:%+v", urls)
+	// os.Exit(1)
+
 	fmt.Printf("LookupPlotsInParallel using ConcurrencyFactor:%+v and RateLimitPerSecond:%v\n", flags.ConcurrencyFactorFlag, flags.RateLimitPerSecondFlag)
 	parallelGetResults := BoundedParallelGet(urls, flags.ConcurrencyFactorFlag, flags.RateLimitPerSecondFlag)
 	plots := buildMapOfTconstToPlot(parallelGetResults)
@@ -45,9 +49,13 @@ func buildMapOfTconstToUrl(filteredFileRows []model.FileRow) map[string]string {
 
 	var urls map[string]string = make(map[string]string)
 
+	template := "http://www.omdbapi.com/?i=%s&apikey=591edae0"
+
 	for _, fileRow := range filteredFileRows {
 
-		urls[fileRow.Tconst] = "https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727dfadb65a3faccd6786a099dce5ef/static/tt0000075.json"
+		urls[fileRow.Tconst] = fmt.Sprintf(template, fileRow.Tconst)
+
+		// urls[fileRow.Tconst] = "https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727dfadb65a3faccd6786a099dce5ef/static/tt0000075.json"
 		// urls[fileRow.Tconst] = "http://localhost:3000/static/tt0000075.json"
 	}
 

@@ -71,6 +71,6 @@ func PrintRow(row model.FileRow) {
 	// IMDB_ID     |   Title               |   Plot
 	// tt0000005   |   Blacksmith Scene    |   Three men hammer on an anvil and pass a bottle of beer around.
 
-	fmt.Printf("%v	%v	%v\n", row.Tconst, row.PrimaryTitle, row.Plot)
+	fmt.Printf("%v	|	%v	|	%v\n", row.Tconst, row.PrimaryTitle, row.Plot)
 	// fmt.Println(row)
 }
