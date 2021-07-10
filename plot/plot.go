@@ -2,6 +2,7 @@ package plot
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"regexp"
@@ -42,6 +43,8 @@ type IMDBResponse struct {
 
 func lookupPlot(tconst string) string {
 
+	fmt.Printf("Looking up plot for tconst:%v\n", tconst)
+
 	//live location
 	// "https://www.omdbapi.com/?i=tt0000075&apikey=591edae0"
 
@@ -64,6 +67,7 @@ func lookupPlot(tconst string) string {
 
 	//return "As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile, much to our amazement, the lady vanishes into thin air.", nil
 
+	fmt.Printf("returning plot for tconst:%v\n", tconst)
 	return p.Plot
 
 }
