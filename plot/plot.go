@@ -1,11 +1,10 @@
 package plot
 
 import (
-	"fmt"
-	"math/rand"
-	"os"
+	"encoding/json"
+	"log"
+	"net/http"
 	"regexp"
-	"time"
 
 	"github.com/andrewrobinson/imdb/model"
 )
@@ -16,12 +15,7 @@ func LookupPlots(filteredFileRows []model.FileRow, flags model.ProgramFlags) []m
 
 	for _, fileRow := range filteredFileRows {
 
-		plot, err := lookupPlot(fileRow.Tconst)
-
-		if err != nil {
-			fmt.Printf("error while looking up plots:%+v\n", err)
-			os.Exit(1)
-		}
+		plot := lookupPlot(fileRow.Tconst)
 
 		fileRow.Plot = plot
 
@@ -42,19 +36,48 @@ func LookupPlots(filteredFileRows []model.FileRow, flags model.ProgramFlags) []m
 	return rowsWithPlots
 }
 
-func lookupPlot(tconst string) (string, error) {
+type IMDBResponse struct {
+	Plot string
+}
 
-	// https://raw.githubusercontent.com/andrewrobinson/imdb/main/tt0000075.json
+func lookupPlot(tconst string) string {
 
+	//live location
 	// "https://www.omdbapi.com/?i=tt0000075&apikey=591edae0"
-	//TODO - make a localhost call
-	return "As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile, much to our amazement, the lady vanishes into thin air.", nil
+
+	//currently served with a sleep by ../static/webserver.go:
+	// http://localhost:3000/static/tt0000075.json
+
+	var p IMDBResponse
+
+	resp, err := http.Get("http://localhost:3000/static/tt0000075.json")
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&p)
+	if err != nil {
+		log.Fatalln(err)
+
+	}
+
+	//return "As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile, much to our amazement, the lady vanishes into thin air.", nil
+
+	return p.Plot
+
 }
 
-func sleepForRandomTime() {
-	rand.Seed(time.Now().UnixNano())
-	n := rand.Intn(10) // n will be between 0 and 10
-	// fmt.Printf("Sleeping %d milliseconds...\n", 10+n)
-	time.Sleep(time.Duration(10+n) * time.Millisecond)
-	// fmt.Println("Done")
-}
+// func sleepFor(base int, random int) {
+// 	rand.Seed(time.Now().UnixNano())
+// 	n := rand.Intn(random)
+// 	time.Sleep(time.Duration(base+n) * time.Millisecond)
+// }
+
+// func sleepForRandomTime() {
+// 	rand.Seed(time.Now().UnixNano())
+// 	n := rand.Intn(10) // n will be between 0 and 10
+// 	// fmt.Printf("Sleeping %d milliseconds...\n", 10+n)
+// 	time.Sleep(time.Duration(10+n) * time.Millisecond)
+// 	// fmt.Println("Done")
+// }

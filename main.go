@@ -18,6 +18,8 @@ import (
 
 //go test . ./...
 
+//http://localhost:3000/static/tt0000075.json
+
 func main() {
 
 	// https://www.yellowduck.be/posts/graceful-shutdown/
