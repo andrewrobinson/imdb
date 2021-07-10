@@ -12,7 +12,35 @@ import (
 	"github.com/andrewrobinson/imdb/plot"
 )
 
-// --maxRunTime=30 --filePath=../title.basics.tsv
+/*
+
+LookupPlotsInParallel using ConcurrencyFactor:20 and RateLimitPerSecond:100
+When hitting https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727dfadb65a3faccd6786a099dce5ef/static/tt0000075.json
+
+//10 rows - 4.24 seconds
+//go run main.go --primaryTitle=Almodovar --filePath=../title.basics.tsv
+
+//106 rows - 5 seconds
+//go run main.go --primaryTitle=Conjuring --filePath=../title.basics.tsv
+
+//290 rows - 6.96 seconds
+//go run main.go --primaryTitle=Xavier --filePath=../title.basics.tsv
+
+//1027 rows - 14.54 seconds
+//go run main.go --primaryTitle=Stewart --filePath=../title.basics.tsv
+
+//2206 rows - 26.2 seconds
+//go run main.go --primaryTitle=Andrew --filePath=../title.basics.tsv
+
+//4534 rows - 50 seconds
+//go run main.go --primaryTitle=Adam --filePath=../title.basics.tsv
+
+//16385 rows - 2 minutes 53 seconds
+//go run main.go --primaryTitle=John --maxApiRequests=17000 --filePath=../title.basics.tsv
+
+*/
+
+// --maxRunTime=30 --filePath=../title.basics.tsv --concurrencyFactor=20
 
 // go run main.go --filePath=../title.basics.tsv --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
 
@@ -23,11 +51,6 @@ import (
 //http://localhost:3000/static/tt0000075.json
 
 func main() {
-
-	// https://www.yellowduck.be/posts/graceful-shutdown/
-	// https://www.yellowduck.be/posts/waitgroup-channels/
-	// https://medium.com/code-zen/concurrency-in-go-5fcba11acb0f
-	// https://stackoverflow.com/questions/36056615/what-is-the-advantage-of-sync-waitgroup-over-channels
 
 	printFlags := false
 	printRows := true
@@ -40,10 +63,6 @@ func main() {
 	if printFlags {
 		fmt.Printf("Flags passed: %+v\n", flags)
 	}
-
-	// fmt.Printf("%v - main() invoked\n", start)
-	// maxRunTime := time.Duration(flags.MaxRunTimeFlag) * time.Second
-	// fmt.Printf("XX maxRunTime:%v\n", maxRunTime)
 
 	processFile(flags, printRows, printMatches)
 
@@ -65,16 +84,28 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	scanner := bufio.NewScanner(file)
 
-	filteredFileRows, highestLineNumber := filter.RunFilters(scanner, flags)
+	filteredRows, highestLineNumber := filter.RunFilters(scanner, flags)
 
-	rowsWithPlots := plot.LookupPlots(filteredFileRows, flags)
+	if len(filteredRows) > flags.MaxApiRequestsFlag {
+		fmt.Printf("filteredRows size:%v larger than MaxApiRequestsFlag:%v, exiting.\n", len(filteredRows), flags.MaxApiRequestsFlag)
+		os.Exit(1)
+	} else {
+		fmt.Printf("filteredRows size:%+v\n", len(filteredRows))
+	}
+
+	plotMap := plot.LookupPlotsInParallel(filteredRows, flags)
+
+	filteredRowsWithPlots := plot.AddPlotsAndMaybeRegexFilter(filteredRows, plotMap, flags)
 
 	if printRows {
-		fmt.Printf("filteredFileRows:%+v\n", rowsWithPlots)
+		fmt.Println("IMDB_ID	Title	Plot")
+		for _, row := range filteredRowsWithPlots {
+			common.PrintRow(row)
+		}
 	}
 
 	if printMatches {
-		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", len(rowsWithPlots), highestLineNumber)
+		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", len(filteredRowsWithPlots), highestLineNumber)
 	}
 
 }

@@ -1,0 +1,6 @@
+
+	// https://www.yellowduck.be/posts/graceful-shutdown/
+	// https://www.yellowduck.be/posts/waitgroup-channels/
+	// https://medium.com/code-zen/concurrency-in-go-5fcba11acb0f
+	// https://stackoverflow.com/questions/36056615/what-is-the-advantage-of-sync-waitgroup-over-channels
+

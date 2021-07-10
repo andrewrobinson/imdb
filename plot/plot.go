@@ -1,24 +1,19 @@
 package plot
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
 	"regexp"
 
 	"github.com/andrewrobinson/imdb/model"
 )
 
-func LookupPlots(filteredFileRows []model.FileRow, flags model.ProgramFlags) []model.FileRow {
+func AddPlotsAndMaybeRegexFilter(filteredFileRows []model.FileRow, mapOfTconstToPlot map[string]string, flags model.ProgramFlags) []model.FileRow {
 
 	var rowsWithPlots []model.FileRow
 
 	for _, fileRow := range filteredFileRows {
 
-		plot := lookupPlot(fileRow.Tconst)
-
-		fileRow.Plot = plot
+		fileRow.Plot = mapOfTconstToPlot[fileRow.Tconst]
 
 		if flags.PlotFilterFlag != "" {
 
@@ -35,53 +30,39 @@ func LookupPlots(filteredFileRows []model.FileRow, flags model.ProgramFlags) []m
 	}
 
 	return rowsWithPlots
+
 }
 
-type IMDBResponse struct {
-	Plot string
+func LookupPlotsInParallel(filteredFileRows []model.FileRow, flags model.ProgramFlags) map[string]string {
+	urls := buildMapOfTconstToUrl(filteredFileRows)
+	fmt.Printf("LookupPlotsInParallel using ConcurrencyFactor:%+v and RateLimitPerSecond:%v\n", flags.ConcurrencyFactorFlag, flags.RateLimitPerSecondFlag)
+	parallelGetResults := BoundedParallelGet(urls, flags.ConcurrencyFactorFlag, flags.RateLimitPerSecondFlag)
+	plots := buildMapOfTconstToPlot(parallelGetResults)
+	return plots
 }
 
-func lookupPlot(tconst string) string {
+func buildMapOfTconstToUrl(filteredFileRows []model.FileRow) map[string]string {
 
-	fmt.Printf("Looking up plot for tconst:%v\n", tconst)
+	var urls map[string]string = make(map[string]string)
 
-	//live location
-	// "https://www.omdbapi.com/?i=tt0000075&apikey=591edae0"
+	for _, fileRow := range filteredFileRows {
 
-	//currently served with a sleep by ../static/webserver.go:
-	// http://localhost:3000/static/tt0000075.json
-
-	var p IMDBResponse
-
-	resp, err := http.Get("http://localhost:3000/static/tt0000075.json")
-
-	if err != nil {
-		log.Fatalln(err)
+		urls[fileRow.Tconst] = "https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727dfadb65a3faccd6786a099dce5ef/static/tt0000075.json"
+		// urls[fileRow.Tconst] = "http://localhost:3000/static/tt0000075.json"
 	}
 
-	err = json.NewDecoder(resp.Body).Decode(&p)
-	if err != nil {
-		log.Fatalln(err)
-
-	}
-
-	//return "As an elegant maestro of mirage and delusion drapes his beautiful female assistant with a gauzy textile, much to our amazement, the lady vanishes into thin air.", nil
-
-	fmt.Printf("returning plot for tconst:%v\n", tconst)
-	return p.Plot
+	return urls
 
 }
 
-// func sleepFor(base int, random int) {
-// 	rand.Seed(time.Now().UnixNano())
-// 	n := rand.Intn(random)
-// 	time.Sleep(time.Duration(base+n) * time.Millisecond)
-// }
+func buildMapOfTconstToPlot(parallelGetResults []PlotLookupResult) map[string]string {
 
-// func sleepForRandomTime() {
-// 	rand.Seed(time.Now().UnixNano())
-// 	n := rand.Intn(10) // n will be between 0 and 10
-// 	// fmt.Printf("Sleeping %d milliseconds...\n", 10+n)
-// 	time.Sleep(time.Duration(10+n) * time.Millisecond)
-// 	// fmt.Println("Done")
-// }
+	var plots = make(map[string]string)
+
+	for _, result := range parallelGetResults {
+		plots[result.Tconst] = result.Plot
+	}
+
+	return plots
+
+}

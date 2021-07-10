@@ -41,25 +41,30 @@ func BuildProgramFlags() model.ProgramFlags {
 	endYearFlag := flag.String("endYear", "", "")
 	runtimeMinutesFlag := flag.String("runtimeMinutes", "", "")
 	genresFlag := flag.String("genres", "", "")
-	maxApiRequestsFlag := flag.Int("maxApiRequests", 300, "")
+	//the max number of results the program will attempt to look plots up for
+	maxApiRequestsFlag := flag.Int("maxApiRequests", 5000, "")
 	maxRunTimeFlag := flag.Int("maxRunTime", 30, "")
 	maxRequestsFlag := flag.Int("maxRequests", 300, "")
 	plotFilterFlag := flag.String("plotFilter", "", "")
+	concurrencyFactorFlag := flag.Int("concurrencyFactor", 20, "")
+	rateLimitPerSecondFlag := flag.Int("rateLimitPerSecond", 100, "")
 
 	flag.Parse()
 
 	flagStruct := model.ProgramFlags{FilePathFlag: *filePathFlag,
-		TitleTypeFlag:      *titleTypeFlag,
-		PrimaryTitleFlag:   *primaryTitleFlag,
-		OriginalTitleFlag:  *originalTitleFlag,
-		StartYearFlag:      *startYearFlag,
-		EndYearFlag:        *endYearFlag,
-		RuntimeMinutesFlag: *runtimeMinutesFlag,
-		GenresFlag:         *genresFlag,
-		MaxApiRequestsFlag: *maxApiRequestsFlag,
-		MaxRunTimeFlag:     *maxRunTimeFlag,
-		MaxRequestsFlag:    *maxRequestsFlag,
-		PlotFilterFlag:     *plotFilterFlag,
+		TitleTypeFlag:          *titleTypeFlag,
+		PrimaryTitleFlag:       *primaryTitleFlag,
+		OriginalTitleFlag:      *originalTitleFlag,
+		StartYearFlag:          *startYearFlag,
+		EndYearFlag:            *endYearFlag,
+		RuntimeMinutesFlag:     *runtimeMinutesFlag,
+		GenresFlag:             *genresFlag,
+		MaxApiRequestsFlag:     *maxApiRequestsFlag,
+		MaxRunTimeFlag:         *maxRunTimeFlag,
+		MaxRequestsFlag:        *maxRequestsFlag,
+		PlotFilterFlag:         *plotFilterFlag,
+		ConcurrencyFactorFlag:  *concurrencyFactorFlag,
+		RateLimitPerSecondFlag: *rateLimitPerSecondFlag,
 	}
 	return flagStruct
 
@@ -81,7 +86,7 @@ func BuildFileRow(fields []string) model.FileRow {
 
 }
 
-func PrintFields(row model.FileRow) {
+func PrintRow(row model.FileRow) {
 
 	// TODO - examine buffered output
 	// https://stackoverflow.com/questions/64638136/performance-issues-while-reading-a-file-line-by-line-with-bufio-newscanner
@@ -90,6 +95,6 @@ func PrintFields(row model.FileRow) {
 	// IMDB_ID     |   Title               |   Plot
 	// tt0000005   |   Blacksmith Scene    |   Three men hammer on an anvil and pass a bottle of beer around.
 
-	fmt.Printf("%+v\n", row)
+	fmt.Printf("%v	%v	%v\n", row.Tconst, row.PrimaryTitle, row.Plot)
 	// fmt.Println(row)
 }
