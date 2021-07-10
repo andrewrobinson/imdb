@@ -1,6 +1,7 @@
 package plot
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -14,16 +15,17 @@ import (
 // a struct to hold the result from each request
 type MontanaResult struct {
 	Tconst string
-	Res    http.Response
-	Err    error
+	Plot   string
+	// Res    http.Response
+	// Err    error
 }
 
-// boundedParallelGet sends requests in parallel but only up to a certain
+// Sends requests in parallel but only up to a certain
 // limit, and furthermore it's only parallel up to the amount of CPUs but
 // is always concurrent up to the concurrency limit
 func MontanaBoundedParallelGet(urls map[string]string, concurrencyLimit int) []MontanaResult {
 
-	//see if a rate limiter helps
+	//see if a rate limiter helps - was getting localhost timeouts
 	rl := ratelimit.New(100) // per second
 
 	// this buffered channel will block at the concurrency limit
@@ -65,7 +67,15 @@ func MontanaBoundedParallelGet(urls map[string]string, concurrencyLimit int) []M
 				os.Exit(1)
 			}
 
-			result := &MontanaResult{key, *res, err}
+			var p IMDBResponse
+
+			err = json.NewDecoder(res.Body).Decode(&p)
+			if err != nil {
+				fmt.Printf("XXX ERR while decoding json for key:%v, url:%v, err:%+v", key, url, err)
+				os.Exit(1)
+			}
+
+			result := &MontanaResult{key, p.Plot}
 
 			// now we can send the result struct through the resultsChan
 			resultsChan <- result

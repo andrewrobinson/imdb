@@ -1,9 +1,7 @@
 package plot
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"regexp"
 
 	"github.com/andrewrobinson/imdb/model"
@@ -75,16 +73,7 @@ func buildMapOfTconstToPlot(parallelGetResults []MontanaResult) map[string]strin
 	var plots = make(map[string]string)
 
 	for _, result := range parallelGetResults {
-
-		var p IMDBResponse
-
-		err := json.NewDecoder(result.Res.Body).Decode(&p)
-		if err != nil {
-			log.Fatalln(err)
-
-		}
-		plots[result.Tconst] = p.Plot
-
+		plots[result.Tconst] = result.Plot
 	}
 
 	return plots

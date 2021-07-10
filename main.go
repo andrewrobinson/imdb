@@ -38,8 +38,6 @@ When hitting https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727d
 //16385 rows - 2 minutes 53 seconds
 //go run main.go --primaryTitle=John --maxApiRequests=17000 --filePath=../title.basics.tsv
 
-
-
 */
 
 // --maxRunTime=30 --filePath=../title.basics.tsv --concurrencyFactor=20
@@ -94,7 +92,6 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 	}
 
 	mapOfTconstToPlot := plot.LookupPlotsInParallel(filteredRows, flags)
-	// fmt.Printf("mapOfTconstToPlot:%+v", mapOfTconstToPlot)
 
 	filteredRowsWithPlots := plot.AddPlotsAndMaybeRegexFilter(filteredRows, mapOfTconstToPlot, flags)
 
