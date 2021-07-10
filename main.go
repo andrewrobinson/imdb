@@ -12,10 +12,22 @@ import (
 	"github.com/andrewrobinson/imdb/plot"
 )
 
-//______________
+/*
+
+LookupPlotsInParallel using ConcurrencyFactor:20 and RateLimitPerSecond:100
+When hitting https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727dfadb65a3faccd6786a099dce5ef/static/tt0000075.json
+
+//10 rows - 4.24 seconds
+//go run main.go --primaryTitle=Almodovar --filePath=../title.basics.tsv
 
 //106 rows - 5 seconds
 //go run main.go --primaryTitle=Conjuring --filePath=../title.basics.tsv
+
+//290 rows - 6.96 seconds
+//go run main.go --primaryTitle=Xavier --filePath=../title.basics.tsv
+
+//1027 rows - 14.54 seconds
+//go run main.go --primaryTitle=Stewart --filePath=../title.basics.tsv
 
 //2206 rows - 26.2 seconds
 //go run main.go --primaryTitle=Andrew --filePath=../title.basics.tsv
@@ -23,7 +35,12 @@ import (
 //4534 rows - 50 seconds
 //go run main.go --primaryTitle=Adam --filePath=../title.basics.tsv
 
-//______________
+//16385 rows - 2 minutes 53 seconds
+//go run main.go --primaryTitle=John --maxApiRequests=17000 --filePath=../title.basics.tsv
+
+
+
+*/
 
 // --maxRunTime=30 --filePath=../title.basics.tsv --concurrencyFactor=20
 
