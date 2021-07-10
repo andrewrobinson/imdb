@@ -54,19 +54,19 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	scanner := bufio.NewScanner(file)
 
-	filteredFileRows, highestLineNumber := filter.RunFilters(scanner, flags)
+	filteredRows, highestLineNumber := filter.RunFilters(scanner, flags)
 
-	var mapOfTconstToPlot map[string]string = plot.LookupPlotsInParallel(filteredFileRows, flags)
+	mapOfTconstToPlot := plot.LookupPlotsInParallel(filteredRows, flags)
 	// fmt.Printf("mapOfTconstToPlot:%+v", mapOfTconstToPlot)
 
-	var rowsWithPlots []model.FileRow = plot.AddPlotsAndMaybeRegexFilter(filteredFileRows, mapOfTconstToPlot, flags)
+	filteredRowsWithPlots := plot.AddPlotsAndMaybeRegexFilter(filteredRows, mapOfTconstToPlot, flags)
 
 	if printRows {
-		fmt.Printf("filteredFileRows:%+v\n", rowsWithPlots)
+		fmt.Printf("filteredFileRows:%+v\n", filteredRowsWithPlots)
 	}
 
 	if printMatches {
-		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", len(rowsWithPlots), highestLineNumber)
+		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", len(filteredRowsWithPlots), highestLineNumber)
 	}
 
 }
