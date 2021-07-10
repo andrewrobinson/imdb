@@ -21,6 +21,7 @@ func BuildProgramFlags() model.ProgramFlags {
 	maxRunTimeFlag := flag.Int("maxRunTime", 30, "")
 	maxRequestsFlag := flag.Int("maxRequests", 300, "")
 	plotFilterFlag := flag.String("plotFilter", "", "")
+	concurrencyFactorFlag := flag.Int("concurrencyFactor", 10, "")
 
 	flag.Parse()
 
@@ -36,6 +37,7 @@ func BuildProgramFlags() model.ProgramFlags {
 		MaxRunTimeFlag:     *maxRunTimeFlag,
 		MaxRequestsFlag:    *maxRequestsFlag,
 		PlotFilterFlag:     *plotFilterFlag,
+		ConcurrencyFactor:  *concurrencyFactorFlag,
 	}
 	return flagStruct
 

@@ -12,7 +12,7 @@ import (
 	"github.com/andrewrobinson/imdb/plot"
 )
 
-// --maxRunTime=30 --filePath=../title.basics.tsv
+// --maxRunTime=30 --filePath=../title.basics.tsv --concurrencyFactor=20
 
 // go run main.go --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
 

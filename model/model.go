@@ -13,6 +13,7 @@ type ProgramFlags struct {
 	MaxRunTimeFlag     int
 	MaxRequestsFlag    int
 	PlotFilterFlag     string
+	ConcurrencyFactor  int
 }
 
 type FileRow struct {

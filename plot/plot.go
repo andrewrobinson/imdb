@@ -2,6 +2,7 @@ package plot
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"regexp"
@@ -55,8 +56,10 @@ func LookupPlotsInParallel(filteredFileRows []model.FileRow, flags model.Program
 
 	var urls map[string]string = buildMapOfTconstToUrl(filteredFileRows)
 
+	fmt.Printf("LookupPlotsInParallel using flags.ConcurrencyFactor:%+v\n", flags.ConcurrencyFactor)
+
 	//TODO - pull 10 from flags
-	var parallelGetResults []MontanaResult = MontanaBoundedParallelGet(urls, 10)
+	var parallelGetResults []MontanaResult = MontanaBoundedParallelGet(urls, flags.ConcurrencyFactor)
 
 	var plots map[string]string = buildMapOfTconstToPlot(parallelGetResults)
 
