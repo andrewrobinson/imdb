@@ -56,7 +56,10 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	filteredFileRows, highestLineNumber := filter.RunFilters(scanner, flags)
 
-	rowsWithPlots := plot.LookupPlotsAndMaybeRegexThem(filteredFileRows, flags)
+	var mapOfTconstToPlot map[string]string = plot.LookupPlotsInParallel(filteredFileRows, flags)
+	// fmt.Printf("mapOfTconstToPlot:%+v", mapOfTconstToPlot)
+
+	var rowsWithPlots []model.FileRow = plot.AddPlotsAndMaybeRegexFilter(filteredFileRows, mapOfTconstToPlot, flags)
 
 	if printRows {
 		fmt.Printf("filteredFileRows:%+v\n", rowsWithPlots)
