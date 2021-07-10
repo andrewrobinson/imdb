@@ -3,12 +3,11 @@ package common
 import (
 	"flag"
 	"fmt"
-	"math/rand"
-	"time"
 
 	"github.com/andrewrobinson/imdb/model"
 )
 
+<<<<<<< HEAD
 func LookupPlot(tconst string) (string, error) {
 
 	//TODO - make a localhost call or something
@@ -30,6 +29,8 @@ func sleepForRandomTime() {
 	// fmt.Println("Done")
 }
 
+=======
+>>>>>>> lines-in-memory
 func BuildProgramFlags() model.ProgramFlags {
 
 	filePathFlag := flag.String("filePath", "title.basics.truncated.tsv", "")
@@ -89,6 +90,6 @@ func PrintFields(row model.FileRow) {
 	// IMDB_ID     |   Title               |   Plot
 	// tt0000005   |   Blacksmith Scene    |   Three men hammer on an anvil and pass a bottle of beer around.
 
-	// fmt.Printf("%+v\n", row)
-	fmt.Println(row)
+	fmt.Printf("%+v\n", row)
+	// fmt.Println(row)
 }

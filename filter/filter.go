@@ -3,24 +3,31 @@ package filter
 import (
 	"bufio"
 	"fmt"
-	"os"
-	"regexp"
 	"strings"
 
 	"github.com/andrewrobinson/imdb/common"
 	"github.com/andrewrobinson/imdb/model"
 )
 
-func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool) (int, int) {
+func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags) ([]model.FileRow, int) {
 
 	lineNumber := 0
-	matches := 0
+
+	var filteredFileRows []model.FileRow
+
 	for scanner.Scan() {
 
 		lineNumber++
 		line := scanner.Text()
 		if lineNumber != 1 {
-			matches = handleLine(line, flags, matches, printRows)
+
+			fields := strings.Split(line, "\t")
+			fileRow := common.BuildFileRow(fields)
+
+			if rowMatchesFlags(fileRow, flags) {
+				filteredFileRows = append(filteredFileRows, fileRow)
+			}
+
 		}
 
 	}
@@ -29,46 +36,8 @@ func RunFilters(scanner *bufio.Scanner, flags model.ProgramFlags, printRows bool
 		fmt.Printf("error on line %v: %v", lineNumber, err)
 	}
 
-	return matches, lineNumber
+	return filteredFileRows, lineNumber
 
-}
-
-func handleLine(line string, flags model.ProgramFlags, matches int, printRows bool) int {
-	fields := strings.Split(line, "\t")
-	fileRow := common.BuildFileRow(fields)
-
-	if rowMatchesFlags(fileRow, flags) {
-
-		plot, err := common.LookupPlot(fileRow.Tconst)
-
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		fileRow.Plot = plot
-
-		if flags.PlotFilterFlag != "" {
-
-			match, _ := regexp.MatchString(flags.PlotFilterFlag, fileRow.Plot)
-
-			if match {
-				matches++
-				if printRows {
-					common.PrintFields(fileRow)
-				}
-			}
-
-		} else {
-			matches++
-			if printRows {
-				common.PrintFields(fileRow)
-			}
-		}
-
-	}
-
-	return matches
 }
 
 func rowMatchesFlags(row model.FileRow, flags model.ProgramFlags) bool {
