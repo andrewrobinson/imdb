@@ -64,7 +64,7 @@ func main() {
 	plotLookuptemplate := "http://www.omdbapi.com/?i=%s&apikey=591edae0"
 
 	// plotLookuptemplate := "https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727dfadb65a3faccd6786a099dce5ef/static/tt0000075.json"
-	// plotLookuptemplate := "http://localhost:3000/static/tt0000075.json"
+	// plotLookuptemplate := "http://localhost:3000/static/%s.json"
 
 	start := time.Now()
 
