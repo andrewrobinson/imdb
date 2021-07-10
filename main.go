@@ -22,13 +22,8 @@ import (
 
 func main() {
 
-	// https://www.yellowduck.be/posts/graceful-shutdown/
-	// https://www.yellowduck.be/posts/waitgroup-channels/
-	// https://medium.com/code-zen/concurrency-in-go-5fcba11acb0f
-	// https://stackoverflow.com/questions/36056615/what-is-the-advantage-of-sync-waitgroup-over-channels
-
 	printFlags := false
-	printRows := true
+	printRows := false
 	printMatches := true
 	printDuration := true
 
@@ -39,24 +34,12 @@ func main() {
 		fmt.Printf("Flags passed: %+v\n", flags)
 	}
 
-	// fmt.Printf("%v - main() invoked\n", start)
-	// maxRunTime := time.Duration(flags.MaxRunTimeFlag) * time.Second
-	// fmt.Printf("XX maxRunTime:%v\n", maxRunTime)
-
 	processFile(flags, printRows, printMatches)
-
-	//a
-	// time.Sleep(maxRunTime)
-
-	//b is equiv to a
-	// sleep := time.After(maxRunTime)
-	// <-sleep
 
 	elapsed := time.Since(start)
 	if printDuration {
 		fmt.Printf("finished, elapsed time:%v\n", elapsed)
 	}
-	// os.Exit(1)
 
 }
 
@@ -73,7 +56,7 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	filteredFileRows, highestLineNumber := filter.RunFilters(scanner, flags)
 
-	rowsWithPlots := plot.LookupPlots(filteredFileRows, flags)
+	rowsWithPlots := plot.LookupPlotsAndMaybeRegexThem(filteredFileRows, flags)
 
 	if printRows {
 		fmt.Printf("filteredFileRows:%+v\n", rowsWithPlots)
