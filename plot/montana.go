@@ -12,27 +12,30 @@ import (
 // a modified version of:
 // https://gist.github.com/montanaflynn/ea4b92ed640f790c4b9cee36046a5383
 
-// a struct to hold the result from each request
-type MontanaResult struct {
+//holds the result from each request
+type PlotLookupResult struct {
 	Tconst string
 	Plot   string
-	// Res    http.Response
-	// Err    error
+}
+
+//used to extract Plot from the json
+type IMDBResponse struct {
+	Plot string
 }
 
 // Sends requests in parallel but only up to a certain
 // limit, and furthermore it's only parallel up to the amount of CPUs but
 // is always concurrent up to the concurrency limit
-func MontanaBoundedParallelGet(urls map[string]string, concurrencyLimit int) []MontanaResult {
+func BoundedParallelGet(urls map[string]string, concurrencyLimit int, rateLimitPerSecond int) []PlotLookupResult {
 
 	//see if a rate limiter helps - was getting localhost timeouts
-	rl := ratelimit.New(100) // per second
+	rl := ratelimit.New(rateLimitPerSecond) // per second
 
 	// this buffered channel will block at the concurrency limit
 	semaphoreChan := make(chan struct{}, concurrencyLimit)
 
 	// this channel will not block and collect the http request results
-	resultsChan := make(chan *MontanaResult)
+	resultsChan := make(chan *PlotLookupResult)
 
 	// make sure we close these channels when we're done with them
 	defer func() {
@@ -75,7 +78,7 @@ func MontanaBoundedParallelGet(urls map[string]string, concurrencyLimit int) []M
 				os.Exit(1)
 			}
 
-			result := &MontanaResult{key, p.Plot}
+			result := &PlotLookupResult{key, p.Plot}
 
 			// now we can send the result struct through the resultsChan
 			resultsChan <- result
@@ -89,7 +92,7 @@ func MontanaBoundedParallelGet(urls map[string]string, concurrencyLimit int) []M
 	}
 
 	// make a slice to hold the results we're expecting
-	var results []MontanaResult
+	var results []PlotLookupResult
 
 	// start listening for any results over the resultsChan
 	// once we get a result append it to the result slice

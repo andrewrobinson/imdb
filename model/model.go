@@ -18,6 +18,7 @@ type ProgramFlags struct {
 	RateLimitPerSecondFlag int //parallel requests for plots use this as a rate limit per second
 }
 
+//matches the tsv
 type FileRow struct {
 	Tconst         string
 	TitleType      string

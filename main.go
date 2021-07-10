@@ -91,17 +91,15 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 		fmt.Printf("filteredRows size:%+v\n", len(filteredRows))
 	}
 
-	mapOfTconstToPlot := plot.LookupPlotsInParallel(filteredRows, flags)
+	plotMap := plot.LookupPlotsInParallel(filteredRows, flags)
 
-	filteredRowsWithPlots := plot.AddPlotsAndMaybeRegexFilter(filteredRows, mapOfTconstToPlot, flags)
+	filteredRowsWithPlots := plot.AddPlotsAndMaybeRegexFilter(filteredRows, plotMap, flags)
 
 	if printRows {
 		fmt.Println("IMDB_ID	Title	Plot")
 		for _, row := range filteredRowsWithPlots {
 			common.PrintRow(row)
 		}
-
-		// fmt.Printf("filteredFileRows:%+v\n", filteredRowsWithPlots)
 	}
 
 	if printMatches {

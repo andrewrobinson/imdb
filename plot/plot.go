@@ -7,10 +7,6 @@ import (
 	"github.com/andrewrobinson/imdb/model"
 )
 
-type IMDBResponse struct {
-	Plot string
-}
-
 func AddPlotsAndMaybeRegexFilter(filteredFileRows []model.FileRow, mapOfTconstToPlot map[string]string, flags model.ProgramFlags) []model.FileRow {
 
 	var rowsWithPlots []model.FileRow
@@ -38,20 +34,11 @@ func AddPlotsAndMaybeRegexFilter(filteredFileRows []model.FileRow, mapOfTconstTo
 }
 
 func LookupPlotsInParallel(filteredFileRows []model.FileRow, flags model.ProgramFlags) map[string]string {
-
-	//This is something I would have done in parallel using a buffered channel and possibly
-	//a ratelimiter like https://github.com/uber-go/ratelimit
-
-	var urls map[string]string = buildMapOfTconstToUrl(filteredFileRows)
-
+	urls := buildMapOfTconstToUrl(filteredFileRows)
 	fmt.Printf("LookupPlotsInParallel using ConcurrencyFactor:%+v and RateLimitPerSecond:%v\n", flags.ConcurrencyFactorFlag, flags.RateLimitPerSecondFlag)
-
-	var parallelGetResults []MontanaResult = MontanaBoundedParallelGet(urls, flags.ConcurrencyFactorFlag)
-
-	var plots map[string]string = buildMapOfTconstToPlot(parallelGetResults)
-
+	parallelGetResults := BoundedParallelGet(urls, flags.ConcurrencyFactorFlag, flags.RateLimitPerSecondFlag)
+	plots := buildMapOfTconstToPlot(parallelGetResults)
 	return plots
-
 }
 
 func buildMapOfTconstToUrl(filteredFileRows []model.FileRow) map[string]string {
@@ -68,7 +55,7 @@ func buildMapOfTconstToUrl(filteredFileRows []model.FileRow) map[string]string {
 
 }
 
-func buildMapOfTconstToPlot(parallelGetResults []MontanaResult) map[string]string {
+func buildMapOfTconstToPlot(parallelGetResults []PlotLookupResult) map[string]string {
 
 	var plots = make(map[string]string)
 
