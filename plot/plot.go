@@ -33,8 +33,8 @@ func AddPlotsAndMaybeRegexFilter(filteredFileRows []model.FileRow, mapOfTconstTo
 
 }
 
-func LookupPlotsInParallel(filteredFileRows []model.FileRow, flags model.ProgramFlags) map[string]string {
-	urls := buildMapOfTconstToUrl(filteredFileRows)
+func LookupPlotsInParallel(filteredFileRows []model.FileRow, flags model.ProgramFlags, plotLookuptemplate string) map[string]string {
+	urls := buildMapOfTconstToUrl(filteredFileRows, plotLookuptemplate)
 
 	// fmt.Printf("urls:%+v", urls)
 	// os.Exit(1)
@@ -45,18 +45,12 @@ func LookupPlotsInParallel(filteredFileRows []model.FileRow, flags model.Program
 	return plots
 }
 
-func buildMapOfTconstToUrl(filteredFileRows []model.FileRow) map[string]string {
+func buildMapOfTconstToUrl(filteredFileRows []model.FileRow, plotLookuptemplate string) map[string]string {
 
 	var urls map[string]string = make(map[string]string)
 
-	template := "http://www.omdbapi.com/?i=%s&apikey=591edae0"
-
 	for _, fileRow := range filteredFileRows {
-
-		urls[fileRow.Tconst] = fmt.Sprintf(template, fileRow.Tconst)
-
-		// urls[fileRow.Tconst] = "https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727dfadb65a3faccd6786a099dce5ef/static/tt0000075.json"
-		// urls[fileRow.Tconst] = "http://localhost:3000/static/tt0000075.json"
+		urls[fileRow.Tconst] = fmt.Sprintf(plotLookuptemplate, fileRow.Tconst)
 	}
 
 	return urls

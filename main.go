@@ -61,6 +61,11 @@ func main() {
 	printMatches := true
 	printDuration := true
 
+	plotLookuptemplate := "http://www.omdbapi.com/?i=%s&apikey=591edae0"
+
+	// plotLookuptemplate := "https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727dfadb65a3faccd6786a099dce5ef/static/tt0000075.json"
+	// plotLookuptemplate := "http://localhost:3000/static/tt0000075.json"
+
 	start := time.Now()
 
 	flags := common.BuildProgramFlags()
@@ -68,7 +73,7 @@ func main() {
 		fmt.Printf("Flags passed: %+v\n", flags)
 	}
 
-	processFile(flags, printRows, printMatches)
+	processFile(flags, printRows, printMatches, plotLookuptemplate)
 
 	elapsed := time.Since(start)
 	if printDuration {
@@ -77,7 +82,7 @@ func main() {
 
 }
 
-func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
+func processFile(flags model.ProgramFlags, printRows bool, printMatches bool, plotLookuptemplate string) {
 
 	file, err := os.Open(flags.FilePathFlag)
 	if err != nil {
@@ -97,7 +102,7 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 		fmt.Printf("filteredRows size:%+v\n", len(filteredRows))
 	}
 
-	plotMap := plot.LookupPlotsInParallel(filteredRows, flags)
+	plotMap := plot.LookupPlotsInParallel(filteredRows, flags, plotLookuptemplate)
 
 	filteredRowsWithPlots := plot.AddPlotsAndMaybeRegexFilter(filteredRows, plotMap, flags)
 
