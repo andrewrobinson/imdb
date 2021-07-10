@@ -12,6 +12,19 @@ import (
 	"github.com/andrewrobinson/imdb/plot"
 )
 
+//______________
+
+//106 rows - 5 seconds
+//go run main.go --primaryTitle=Conjuring --filePath=../title.basics.tsv
+
+//2206 rows - 26.2 seconds
+//go run main.go --primaryTitle=Andrew --filePath=../title.basics.tsv
+
+//4534 rows - 50 seconds
+//go run main.go --primaryTitle=Adam --filePath=../title.basics.tsv
+
+//______________
+
 // --maxRunTime=30 --filePath=../title.basics.tsv --concurrencyFactor=20
 
 // go run main.go --titleType=short --primaryTitle=Conjuring --originalTitle=Escamotage --plotFilter=female
@@ -23,7 +36,7 @@ import (
 func main() {
 
 	printFlags := false
-	printRows := false
+	printRows := true
 	printMatches := true
 	printDuration := true
 
@@ -56,13 +69,25 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool) {
 
 	filteredRows, highestLineNumber := filter.RunFilters(scanner, flags)
 
+	if len(filteredRows) > flags.MaxApiRequestsFlag {
+		fmt.Printf("filteredRows size:%v larger than MaxApiRequestsFlag:%v, exiting.\n", len(filteredRows), flags.MaxApiRequestsFlag)
+		os.Exit(1)
+	} else {
+		fmt.Printf("filteredRows size:%+v\n", len(filteredRows))
+	}
+
 	mapOfTconstToPlot := plot.LookupPlotsInParallel(filteredRows, flags)
 	// fmt.Printf("mapOfTconstToPlot:%+v", mapOfTconstToPlot)
 
 	filteredRowsWithPlots := plot.AddPlotsAndMaybeRegexFilter(filteredRows, mapOfTconstToPlot, flags)
 
 	if printRows {
-		fmt.Printf("filteredFileRows:%+v\n", filteredRowsWithPlots)
+		fmt.Println("IMDB_ID	Title	Plot")
+		for _, row := range filteredRowsWithPlots {
+			common.PrintRow(row)
+		}
+
+		// fmt.Printf("filteredFileRows:%+v\n", filteredRowsWithPlots)
 	}
 
 	if printMatches {

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"regexp"
 
 	"github.com/andrewrobinson/imdb/model"
@@ -13,15 +12,6 @@ import (
 type IMDBResponse struct {
 	Plot string
 }
-
-// a struct to hold the result from each request
-type MontanaResult struct {
-	Tconst string
-	Res    http.Response
-	Err    error
-}
-
-// plot.MaybeRegexFilter(filteredFileRows, mapOfTconstToPlot, flags)
 
 func AddPlotsAndMaybeRegexFilter(filteredFileRows []model.FileRow, mapOfTconstToPlot map[string]string, flags model.ProgramFlags) []model.FileRow {
 
@@ -56,10 +46,9 @@ func LookupPlotsInParallel(filteredFileRows []model.FileRow, flags model.Program
 
 	var urls map[string]string = buildMapOfTconstToUrl(filteredFileRows)
 
-	fmt.Printf("LookupPlotsInParallel using flags.ConcurrencyFactor:%+v\n", flags.ConcurrencyFactor)
+	fmt.Printf("LookupPlotsInParallel using ConcurrencyFactor:%+v and RateLimitPerSecond:%v\n", flags.ConcurrencyFactorFlag, flags.RateLimitPerSecondFlag)
 
-	//TODO - pull 10 from flags
-	var parallelGetResults []MontanaResult = MontanaBoundedParallelGet(urls, flags.ConcurrencyFactor)
+	var parallelGetResults []MontanaResult = MontanaBoundedParallelGet(urls, flags.ConcurrencyFactorFlag)
 
 	var plots map[string]string = buildMapOfTconstToPlot(parallelGetResults)
 
@@ -72,7 +61,9 @@ func buildMapOfTconstToUrl(filteredFileRows []model.FileRow) map[string]string {
 	var urls map[string]string = make(map[string]string)
 
 	for _, fileRow := range filteredFileRows {
-		urls[fileRow.Tconst] = "http://localhost:3000/static/tt0000075.json"
+
+		urls[fileRow.Tconst] = "https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727dfadb65a3faccd6786a099dce5ef/static/tt0000075.json"
+		// urls[fileRow.Tconst] = "http://localhost:3000/static/tt0000075.json"
 	}
 
 	return urls
@@ -82,8 +73,6 @@ func buildMapOfTconstToUrl(filteredFileRows []model.FileRow) map[string]string {
 func buildMapOfTconstToPlot(parallelGetResults []MontanaResult) map[string]string {
 
 	var plots = make(map[string]string)
-
-	// fmt.Printf("results from BoundedParallelGet:%+v", results)
 
 	for _, result := range parallelGetResults {
 

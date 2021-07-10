@@ -1,7 +1,9 @@
 package plot
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 
 	"go.uber.org/ratelimit"
 )
@@ -9,13 +11,20 @@ import (
 // a modified version of:
 // https://gist.github.com/montanaflynn/ea4b92ed640f790c4b9cee36046a5383
 
+// a struct to hold the result from each request
+type MontanaResult struct {
+	Tconst string
+	Res    http.Response
+	Err    error
+}
+
 // boundedParallelGet sends requests in parallel but only up to a certain
 // limit, and furthermore it's only parallel up to the amount of CPUs but
 // is always concurrent up to the concurrency limit
 func MontanaBoundedParallelGet(urls map[string]string, concurrencyLimit int) []MontanaResult {
 
 	//see if a rate limiter helps
-	rl := ratelimit.New(10) // per second
+	rl := ratelimit.New(100) // per second
 
 	// this buffered channel will block at the concurrency limit
 	semaphoreChan := make(chan struct{}, concurrencyLimit)
@@ -50,6 +59,12 @@ func MontanaBoundedParallelGet(urls map[string]string, concurrencyLimit int) []M
 			rl.Take()
 
 			res, err := http.Get(url)
+
+			if err != nil {
+				fmt.Printf("XXX ERR while getting url for key:%v, url:%v, err:%+v", key, url, err)
+				os.Exit(1)
+			}
+
 			result := &MontanaResult{key, *res, err}
 
 			// now we can send the result struct through the resultsChan
