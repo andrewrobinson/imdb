@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/andrewrobinson/imdb/common"
@@ -54,7 +56,53 @@ When hitting https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727d
 
 //http://localhost:3000/static/tt0000075.json
 
+// func gen(nums ...int) <-chan int {
+// 	out := make(chan int)
+// 	go func() {
+// 		for _, n := range nums {
+// 			out <- n
+// 		}
+// 		close(out)
+// 	}()
+// 	return out
+// }
+
 func main() {
+	shutdown := make(chan os.Signal)
+	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
+
+	var results []string
+	resultsPipe := make(chan string)
+
+	strings := [5]string{"a", "b", "c", "d"}
+
+	go func() {
+		for _, n := range strings {
+			resultsPipe <- n
+		}
+		close(resultsPipe)
+	}()
+
+L:
+
+	for {
+		select {
+		case <-time.Tick(time.Second * 30):
+			fmt.Println("process timed out")
+			// shutdown <- syscall.SIGTERM
+			break L
+		case sig := <-shutdown:
+			fmt.Printf("shutdown signal %s recieved", sig)
+			break L
+		case result := <-resultsPipe:
+			results = append(results, result)
+		}
+	}
+
+	fmt.Printf("results:%v", results)
+}
+
+func main2() {
 
 	printFlags := false
 	printRows := true
