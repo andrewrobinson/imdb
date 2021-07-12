@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math/rand"
 	"os"
 	"time"
 
@@ -56,7 +57,7 @@ When hitting https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727d
 
 func main() {
 
-	printFlags := false
+	printFlags := true
 	printRows := true
 	printMatches := true
 	printDuration := true
@@ -75,7 +76,24 @@ func main() {
 		fmt.Printf("Flags passed: %+v\n", flags)
 	}
 
-	processFile(flags, printRows, printMatches, plotLookuptemplate)
+	// c := moring("Joe")
+
+	//erm you can't put go in front here?
+	resultsPipe := processFile(flags, printRows, printMatches, plotLookuptemplate)
+
+	timeout := time.After(5 * time.Second)
+
+L:
+
+	for {
+		select {
+		case s := <-resultsPipe:
+			fmt.Println(s)
+		case <-timeout:
+			fmt.Println("You talk too much.")
+			break L
+		}
+	}
 
 	elapsed := time.Since(start)
 	if printDuration {
@@ -84,11 +102,35 @@ func main() {
 
 }
 
-func processFile(flags model.ProgramFlags, printRows bool, printMatches bool, plotLookuptemplate string) {
+// func boring(msg string) <-chan string { // Returns receive-only channel of strings.
+// 	c := make(chan string)
+// 	go func() { // We launch the goroutine from inside the function.
+// 		for i := 0; ; i++ {
+// 			c <- fmt.Sprintf("%s %d", msg, i)
+// 			time.Sleep(time.Duration(rand.Intn(1e3)) * time.Millisecond)
+// 		}
+// 	}()
+// 	return c // Return the channel to the caller.
+// }
+
+func moring(msg string) <-chan string { // Returns receive-only channel of strings.
+	resultsPipe := make(chan string)
+	go func() { // We launch the goroutine from inside the function.
+		for i := 0; ; i++ {
+			resultsPipe <- fmt.Sprintf("%s %d", msg, i)
+			time.Sleep(time.Duration(rand.Intn(1e3)) * time.Millisecond)
+		}
+	}()
+	return resultsPipe // Return the channel to the caller.
+}
+
+func processFile(flags model.ProgramFlags, printRows bool, printMatches bool, plotLookuptemplate string) <-chan string {
+
+	resultsPipe := make(chan string)
 
 	file, err := os.Open(flags.FilePathFlag)
 	if err != nil {
-		fmt.Println(err)
+		resultsPipe <- fmt.Sprintf("%v", err)
 		os.Exit(1)
 	}
 	defer file.Close()
@@ -98,10 +140,10 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool, pl
 	filteredRows, highestLineNumber := filter.RunFilters(scanner, flags)
 
 	if len(filteredRows) > flags.MaxApiRequestsFlag {
-		fmt.Printf("filteredRows size:%v larger than MaxApiRequestsFlag:%v, exiting.\n", len(filteredRows), flags.MaxApiRequestsFlag)
+		resultsPipe <- fmt.Sprintf("filteredRows size:%v larger than MaxApiRequestsFlag:%v, exiting.\n", len(filteredRows), flags.MaxApiRequestsFlag)
 		os.Exit(1)
 	} else {
-		fmt.Printf("filteredRows size:%+v\n", len(filteredRows))
+		resultsPipe <- fmt.Sprintf("filteredRows size:%+v\n", len(filteredRows))
 	}
 
 	plotMap := plot.LookupPlotsInParallel(filteredRows, flags, plotLookuptemplate)
@@ -109,14 +151,16 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool, pl
 	filteredRowsWithPlots := plot.AddPlotsAndMaybeRegexFilter(filteredRows, plotMap, flags)
 
 	if printRows {
-		fmt.Println("IMDB_ID	|	Title	|	Plot")
+		resultsPipe <- fmt.Sprintf("IMDB_ID	|	Title	|	Plot")
 		for _, row := range filteredRowsWithPlots {
-			common.PrintRow(row)
+			resultsPipe <- fmt.Sprintf("%v	|	%v	|	%v\n", row.Tconst, row.PrimaryTitle, row.Plot)
 		}
 	}
 
 	if printMatches {
-		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", len(filteredRowsWithPlots), highestLineNumber)
+		resultsPipe <- fmt.Sprintf("processed ok, matches:%v from lines processed:%v\n", len(filteredRowsWithPlots), highestLineNumber)
 	}
+
+	return resultsPipe
 
 }
