@@ -55,6 +55,59 @@ When hitting https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727d
 //http://localhost:3000/static/tt0000075.json
 
 func main() {
+	output := make(chan string, 6)
+
+	// messages := make(chan string, 6)
+
+	// ret := fmt.Sprintf("s%v", 4)
+	// fmt.Println(ret)
+
+	go func() {
+		//only the 1st one goes in .... ?
+		output <- "andr"
+		output <- "ping"
+		output <- "ew"
+
+		//only the 1st one goes in .... ?
+		// By default sends and receives block until both the sender and receiver are ready.
+		// This property allowed us to wait at the end of our program for the "ping" message
+		// without having to use any other synchronization.
+		// for i := 0; i < 5; i++ {
+		// 	output <- fmt.Sprintf("s%v", i)
+		// }
+
+		//and this doesn't get printed
+		// fmt.Println("output in goroutine %+v", output)
+
+	}()
+	msg0 := <-output
+	msg1 := <-output
+	msg2 := <-output
+
+	//and it blocks here
+	// msg3 := <-output
+
+	fmt.Println(msg0)
+	fmt.Println(msg1)
+	fmt.Println(msg2)
+
+	// fmt.Println(msg3)
+
+	// fmt.Printf("output after make: %+v\n", output)
+
+	// output <- "andr"
+
+	// fmt.Printf("output after push1: %+v\n", output)
+
+	// output <- "ew"
+
+	// fmt.Printf("output after push2: %+v\n", output)
+
+	// fmt.Printf("output: %+v\n", output)
+
+}
+
+func main2() {
 
 	printFlags := false
 	printRows := true
@@ -75,7 +128,17 @@ func main() {
 		fmt.Printf("Flags passed: %+v\n", flags)
 	}
 
+	output := make(chan string)
+
+	output <- "andr"
+
+	// output <- processFile(flags, printRows, printMatches, plotLookuptemplate, output)
+
 	processFile(flags, printRows, printMatches, plotLookuptemplate)
+
+	output <- "ew"
+
+	fmt.Printf("output: %+v\n", output)
 
 	elapsed := time.Since(start)
 	if printDuration {
@@ -85,6 +148,7 @@ func main() {
 }
 
 func processFile(flags model.ProgramFlags, printRows bool, printMatches bool, plotLookuptemplate string) {
+	// func processFile(flags model.ProgramFlags, printRows bool, printMatches bool, plotLookuptemplate string, output chan string) chan string {
 
 	file, err := os.Open(flags.FilePathFlag)
 	if err != nil {
@@ -111,12 +175,17 @@ func processFile(flags model.ProgramFlags, printRows bool, printMatches bool, pl
 	if printRows {
 		fmt.Println("IMDB_ID	|	Title	|	Plot")
 		for _, row := range filteredRowsWithPlots {
-			common.PrintRow(row)
+
+			fmt.Printf("%v	|	%v	|	%v\n", row.Tconst, row.PrimaryTitle, row.Plot)
+			// common.PrintRow(row)
 		}
 	}
 
 	if printMatches {
 		fmt.Printf("processed ok, matches:%v from lines processed:%v\n", len(filteredRowsWithPlots), highestLineNumber)
 	}
+
+	// output <- "andrew"
+	// return output
 
 }
