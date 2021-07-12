@@ -56,6 +56,17 @@ When hitting https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727d
 
 //http://localhost:3000/static/tt0000075.json
 
+/*
+Problems with this code:
+
+a) You only see the results upon timeout, or if you go Ctrl-C. Why can't you see results sooner?
+b) shutdownSigTerm <- syscall.SIGTERM doesn't calls case sigTerm
+c) I had to add L onto the break statement
+d) case result := <-resultsPipe fires in an infinite loop if resultsPipe is closed. Why can't it be closed?
+if it is closed, why can't that case not fire?
+
+*/
+
 func main() {
 
 	var results []string
@@ -64,23 +75,18 @@ func main() {
 
 	resultsPipe := make(chan string, len(strings))
 
-	// fmt.Println("before go func")
+	//produce to resultsPipe
 	go func() {
 		for _, n := range strings {
-			// fmt.Printf("each n:%v\n", n)
 			resultsPipe <- n
 		}
 	}()
-
-	// fmt.Println("after go func")
 
 	shutdownSigTerm := make(chan os.Signal)
 	signal.Notify(shutdownSigTerm, os.Interrupt, syscall.SIGTERM)
 
 	shutdownSigInt := make(chan os.Signal)
 	signal.Notify(shutdownSigInt, os.Interrupt, syscall.SIGINT)
-
-	// fmt.Println("before for select")
 
 L:
 
@@ -96,16 +102,15 @@ L:
 			//so I added this instead. It is what happens at sigTerm
 			break L
 		case sigTerm := <-shutdownSigTerm:
-			fmt.Printf("shutdown signal %s received\n", sigTerm)
+			fmt.Printf("sigTerm signal %s received\n", sigTerm)
 			//I had to add the L
 			break L
 		case sigInt := <-shutdownSigInt:
-			fmt.Printf("shutdown signal %s received\n", sigInt)
+			fmt.Printf("sigInt signal %s received\n", sigInt)
 			//I had to add the L
 			break L
 		case result := <-resultsPipe:
 			//this fires in an infinite loop if resultsPipe has been closed - why?
-			// fmt.Printf("appending result:%v to results\n", result)
 			results = append(results, result)
 		}
 	}
