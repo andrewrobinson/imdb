@@ -60,12 +60,23 @@ When hitting https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727d
 Problems with this code:
 
 a) You only see the results upon timeout, or if you go Ctrl-C. Why can't you see results sooner?
+
+
 b) shutdownSigTerm <- syscall.SIGTERM doesn't calls case sigTerm
 c) I had to add L onto the break statement
 d) case result := <-resultsPipe fires in an infinite loop if resultsPipe is closed. Why can't it be closed?
 if it is closed, why can't that case not fire?
+e) You need to know this size of results ahead of time. If resultsPipe isn't bounded then it blocks.
 
 */
+
+func printResults(results []string) {
+	fmt.Printf("results:%v\n", results)
+}
+
+func printResultsSoFar(results []string) {
+	fmt.Printf("results so far:%v\n", results)
+}
 
 func main() {
 
@@ -75,11 +86,16 @@ func main() {
 
 	resultsPipe := make(chan string, len(strings))
 
+	//this is meant to signal "how execution ended", so we know if it is full or partial results being displayed
+	finishedProcessingPipe := make(chan string)
+
 	//produce to resultsPipe
 	go func() {
 		for _, n := range strings {
 			resultsPipe <- n
 		}
+		//this does arrive - but after the last result := <-resultsPipe or not?
+		finishedProcessingPipe <- "done"
 	}()
 
 	shutdownSigTerm := make(chan os.Signal)
@@ -94,28 +110,37 @@ L:
 		select {
 		case <-time.Tick(time.Second * 30):
 			fmt.Println("process timed out")
-			//we time out via sending a sigterm, but could also do it via sigint
 
-			//this doesn't seemt to trigger the case sig. hence no results printed
+			//this doesn't arrive - why?
+			// finishedProcessingPipe <- "timeOut"
+
+			//b) this doesn't seemt to trigger the case sig. hence no results printed
 			// shutdownSigTerm <- syscall.SIGTERM
 
 			//so I added this instead. It is what happens at sigTerm
+			printResultsSoFar(results)
 			break L
 		case sigTerm := <-shutdownSigTerm:
 			fmt.Printf("sigTerm signal %s received\n", sigTerm)
-			//I had to add the L
+			//this doesn't arrive
+			// finishedProcessingPipe <- "sigTerm"
+			printResultsSoFar(results)
 			break L
 		case sigInt := <-shutdownSigInt:
 			fmt.Printf("sigInt signal %s received\n", sigInt)
-			//I had to add the L
+			//this doesn't arrive
+			// finishedProcessingPipe <- "sigInt"
+			printResultsSoFar(results)
 			break L
+		case message := <-finishedProcessingPipe:
+			fmt.Printf("finishedProcessingPipe, message:%v\n", message)
+			printResults(results)
 		case result := <-resultsPipe:
 			//this fires in an infinite loop if resultsPipe has been closed - why?
+			fmt.Printf("intermediate result:%v\n", result)
 			results = append(results, result)
 		}
 	}
-
-	fmt.Printf("results:%v\n", results)
 
 }
 
