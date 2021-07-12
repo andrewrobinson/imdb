@@ -56,22 +56,8 @@ When hitting https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727d
 
 //http://localhost:3000/static/tt0000075.json
 
-/*
-Problems with this code:
-
-a) You only see the results upon timeout, or if you go Ctrl-C. Why can't you see results sooner?
-
-
-b) shutdownSigTerm <- syscall.SIGTERM doesn't calls case sigTerm
-c) I had to add L onto the break statement
-d) case result := <-resultsPipe fires in an infinite loop if resultsPipe is closed. Why can't it be closed?
-if it is closed, why can't that case not fire?
-e) You need to know this size of results ahead of time. If resultsPipe isn't bounded then it blocks.
-
-*/
-
 func printResults(results []string) {
-	fmt.Printf("results:%v\n", results)
+	fmt.Printf("full results:%v\n", results)
 }
 
 func printResultsSoFar(results []string) {
@@ -87,14 +73,16 @@ func main() {
 	resultsPipe := make(chan string, len(strings))
 
 	//this is meant to signal "how execution ended", so we know if it is full or partial results being displayed
+	//ie values of "done", "timedOut",
 	finishedProcessingPipe := make(chan string)
 
-	//produce to resultsPipe
+	//produce to resultsPipe. Not sure how my actual code would interface with this.
 	go func() {
 		for _, n := range strings {
 			resultsPipe <- n
 		}
-		//this does arrive - but after the last result := <-resultsPipe or not?
+		//this does arrive - but before all the  result := <-resultsPipe cases have come in
+		//maybe in my actual code I would get somewhere more delayed to send it from
 		finishedProcessingPipe <- "done"
 	}()
 
@@ -104,6 +92,7 @@ func main() {
 	shutdownSigInt := make(chan os.Signal)
 	signal.Notify(shutdownSigInt, os.Interrupt, syscall.SIGINT)
 
+	//Wish this L wasn't needed
 L:
 
 	for {
