@@ -56,45 +56,21 @@ When hitting https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727d
 
 //http://localhost:3000/static/tt0000075.json
 
-// func gen(nums ...int) <-chan int {
-// 	out := make(chan int)
-// 	go func() {
-// 		for _, n := range nums {
-// 			out <- n
-// 		}
-// 		close(out)
-// 	}()
-// 	return out
-// }
-
 func main() {
 
 	var results []string
 
 	strings := [5]string{"a", "b", "c", "d", "e"}
 
-	// resultsPipe := make(chan string, len(strings))
-
-	resultsPipe := make(chan string, 5)
-
-	for _, n := range strings {
-		fmt.Printf("each n:%v\n", n)
-		resultsPipe <- n
-	}
-
-	// resultsPipe <- "f"
-	// resultsPipe <- "g"
-	// resultsPipe <- "h"
-	// resultsPipe <- "i"
-	// resultsPipe <- "j"
+	resultsPipe := make(chan string, len(strings))
 
 	// fmt.Println("before go func")
-	// func() {
-	// 	for _, n := range strings {
-	// 		resultsPipe <- n
-	// 	}
-	// 	close(resultsPipe)
-	// }()
+	go func() {
+		for _, n := range strings {
+			// fmt.Printf("each n:%v\n", n)
+			resultsPipe <- n
+		}
+	}()
 
 	// fmt.Println("after go func")
 
@@ -104,7 +80,7 @@ func main() {
 	shutdownSigInt := make(chan os.Signal)
 	signal.Notify(shutdownSigInt, os.Interrupt, syscall.SIGINT)
 
-	fmt.Println("before for select")
+	// fmt.Println("before for select")
 
 L:
 
@@ -112,47 +88,29 @@ L:
 		select {
 		case <-time.Tick(time.Second * 30):
 			fmt.Println("process timed out")
-
 			//we time out via sending a sigterm, but could also do it via sigint
 
 			//this doesn't seemt to trigger the case sig. hence no results printed
 			// shutdownSigTerm <- syscall.SIGTERM
-			//so I added this instead
+
+			//so I added this instead. It is what happens at sigTerm
 			break L
 		case sigTerm := <-shutdownSigTerm:
 			fmt.Printf("shutdown signal %s received\n", sigTerm)
+			//I had to add the L
 			break L
 		case sigInt := <-shutdownSigInt:
 			fmt.Printf("shutdown signal %s received\n", sigInt)
+			//I had to add the L
 			break L
 		case result := <-resultsPipe:
-			//TODO - this seems to fire in an infinite loop
-			fmt.Printf("appending result:%v to results\n", result)
+			//this fires in an infinite loop if resultsPipe has been closed - why?
+			// fmt.Printf("appending result:%v to results\n", result)
 			results = append(results, result)
-
-			// Calling Sleep method
-			// time.Sleep(1 * time.Second)
-
-			// Printed after sleep is over
-			// fmt.Println("Sleep Over.....")
-
-			// before for select
-			// appending result:a to results
-			// Sleep Over.....
-			// appending result:b to results
-			// Sleep Over.....
-			// appending result:c to results
-			// Sleep Over.....
-			// appending result:d to results
-			// Sleep Over.....
-			// appending result: to results
-			// Sleep Over.....
-
-			// os.Exit(1)
 		}
 	}
 
-	fmt.Printf("after for select, results:%v\n", results)
+	fmt.Printf("results:%v\n", results)
 
 }
 
