@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func main() {
+func main3() {
 	mux := http.NewServeMux()
 
 	th := &timeHandler{format: time.RFC1123}
