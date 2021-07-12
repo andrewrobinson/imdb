@@ -130,10 +130,10 @@ L:
 			results = append(results, result)
 
 			// Calling Sleep method
-			time.Sleep(1 * time.Second)
+			// time.Sleep(1 * time.Second)
 
 			// Printed after sleep is over
-			fmt.Println("Sleep Over.....")
+			// fmt.Println("Sleep Over.....")
 
 			// before for select
 			// appending result:a to results
