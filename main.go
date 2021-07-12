@@ -68,6 +68,85 @@ When hitting https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727d
 // }
 
 func main() {
+
+	var results []string
+
+	// strings := [5]string{"a", "b", "c", "d"}
+
+	// resultsPipe := make(chan string, len(strings))
+
+	resultsPipe := make(chan string, 5)
+
+	resultsPipe <- "a"
+	resultsPipe <- "b"
+	resultsPipe <- "c"
+	resultsPipe <- "d"
+	resultsPipe <- "e"
+
+	// fmt.Println("before go func")
+	// func() {
+	// 	for _, n := range strings {
+	// 		resultsPipe <- n
+	// 	}
+	// 	close(resultsPipe)
+	// }()
+
+	// fmt.Println("after go func")
+
+	shutdownSigTerm := make(chan os.Signal)
+	signal.Notify(shutdownSigTerm, os.Interrupt, syscall.SIGTERM)
+
+	shutdownSigInt := make(chan os.Signal)
+	signal.Notify(shutdownSigInt, os.Interrupt, syscall.SIGINT)
+
+	fmt.Println("before for select")
+
+L:
+
+	for {
+		select {
+		case <-time.Tick(time.Second * 30):
+			fmt.Println("process timed out")
+			//we time out via sending a sigterm, but could also do it via sigint
+			shutdownSigTerm <- syscall.SIGTERM
+		case sig := <-shutdownSigTerm:
+			fmt.Printf("shutdown signal %s received\n", sig)
+			break L
+		case sig := <-shutdownSigInt:
+			fmt.Printf("shutdown signal %s received\n", sig)
+			break L
+		case result := <-resultsPipe:
+			//TODO - this seems to fire in an infinite loop
+			fmt.Printf("appending result:%v to results\n", result)
+			// results = append(results, result)
+
+			// Calling Sleep method
+			time.Sleep(1 * time.Second)
+
+			// Printed after sleep is over
+			fmt.Println("Sleep Over.....")
+
+			// before for select
+			// appending result:a to results
+			// Sleep Over.....
+			// appending result:b to results
+			// Sleep Over.....
+			// appending result:c to results
+			// Sleep Over.....
+			// appending result:d to results
+			// Sleep Over.....
+			// appending result: to results
+			// Sleep Over.....
+
+			// os.Exit(1)
+		}
+	}
+
+	fmt.Printf("after for select, results:%v\n", results)
+
+}
+
+func main4() {
 	shutdown := make(chan os.Signal)
 	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
 
@@ -89,8 +168,8 @@ L:
 		select {
 		case <-time.Tick(time.Second * 30):
 			fmt.Println("process timed out")
-			// shutdown <- syscall.SIGTERM
-			break L
+			shutdown <- syscall.SIGTERM
+			// break L
 		case sig := <-shutdown:
 			fmt.Printf("shutdown signal %s recieved", sig)
 			break L
