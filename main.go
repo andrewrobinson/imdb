@@ -55,7 +55,10 @@ When hitting https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727d
 //http://localhost:3000/static/tt0000075.json
 
 func main() {
-	output := make(chan string, 6)
+
+	q := []string{"ping", "andr", "ew", "sobinson"}
+
+	output := make(chan string, len(q))
 
 	// messages := make(chan string, 6)
 
@@ -63,10 +66,10 @@ func main() {
 	// fmt.Println(ret)
 
 	go func() {
-		//only the 1st one goes in .... ?
-		output <- "andr"
-		output <- "ping"
-		output <- "ew"
+
+		for _, s := range q {
+			output <- s
+		}
 
 		//only the 1st one goes in .... ?
 		// By default sends and receives block until both the sender and receiver are ready.
@@ -80,30 +83,23 @@ func main() {
 		// fmt.Println("output in goroutine %+v", output)
 
 	}()
-	msg0 := <-output
-	msg1 := <-output
-	msg2 := <-output
+	// msg0 := <-output
+	// msg1 := <-output
+	// msg2 := <-output
 
 	//and it blocks here
 	// msg3 := <-output
 
-	fmt.Println(msg0)
-	fmt.Println(msg1)
-	fmt.Println(msg2)
+	// fmt.Println(msg0)
+	// fmt.Println(msg1)
+	// fmt.Println(msg2)
 
-	// fmt.Println(msg3)
+	for elem := range output {
+		fmt.Println(elem)
+	}
 
-	// fmt.Printf("output after make: %+v\n", output)
-
-	// output <- "andr"
-
-	// fmt.Printf("output after push1: %+v\n", output)
-
-	// output <- "ew"
-
-	// fmt.Printf("output after push2: %+v\n", output)
-
-	// fmt.Printf("output: %+v\n", output)
+	//now the program doesn't exit. because of the go func()
+	//is that inevitable? a way of sending a terminate signal is needed.
 
 }
 
@@ -128,17 +124,19 @@ func main2() {
 		fmt.Printf("Flags passed: %+v\n", flags)
 	}
 
-	output := make(chan string)
+	// inputs := []{"a","b","c"}
 
-	output <- "andr"
+	// output := make(chan string)
+
+	// output <- "andr"
 
 	// output <- processFile(flags, printRows, printMatches, plotLookuptemplate, output)
 
 	processFile(flags, printRows, printMatches, plotLookuptemplate)
 
-	output <- "ew"
+	// output <- "ew"
 
-	fmt.Printf("output: %+v\n", output)
+	// fmt.Printf("output: %+v\n", output)
 
 	elapsed := time.Since(start)
 	if printDuration {
