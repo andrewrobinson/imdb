@@ -1,0 +1,15 @@
+
+1) You have to Ctrl-C or wait for a timeout to see the resulst.
+See tyrone-finished-processing branch for an attempt at solving this
+
+2) Not sure how to integrate my real code with this.
+
+2) I can't seem to send to channels from inside a case statement.
+This is why Tyrone's shutdownSigTerm <- syscall.SIGTERM doesn't work?
+and why I have to hack a break L
+
+3) case result := <-resultsPipe fires in an infinite loop if resultsPipe is closed. Why? all other signals are drowned out
+
+
+
+
