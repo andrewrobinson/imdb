@@ -4,9 +4,11 @@ Problems:
 So, on top of Tyrone's code, I added
 finishedProcessingPipe := make(chan string)
 and then printResults and printResultsSoFar for different messages to be sent
+BUT - I can't get this working properly
 
-
-2) Channels block unless they are "buffered", ie given a size
+2) Not sure how to integrate my actual code in here.
+ie do I use channels for full output or not.
+Channels block unless they are "buffered", ie given a size
 Since pipelines are built on top of these, I'm not sure how useful this approach is here, 
 since sizes aren't know ahead of time
 ie I rather want to return the results the usual way, and just use channels for shutdown etc
@@ -26,7 +28,6 @@ and why I have to hack a break L
 I think this is also why I can't send various states to finishedProcessingPipe
 The only one that does is arrive is "done". And this arrives BEFORE I have 
 received result := <-resultsPipe
-
 
 3) case result := <-resultsPipe fires in an infinite loop if resultsPipe is closed. Why? all other signals are drowned out
 
