@@ -71,17 +71,21 @@ func main() {
 
 	var results []string
 
-	// strings := [5]string{"a", "b", "c", "d"}
+	strings := [5]string{"a", "b", "c", "d", "e"}
 
 	// resultsPipe := make(chan string, len(strings))
 
 	resultsPipe := make(chan string, 5)
 
-	resultsPipe <- "a"
-	resultsPipe <- "b"
-	resultsPipe <- "c"
-	resultsPipe <- "d"
-	resultsPipe <- "e"
+	for _, n := range strings {
+		fmt.Printf("each n:%v\n", n)
+	}
+
+	resultsPipe <- "f"
+	resultsPipe <- "g"
+	resultsPipe <- "h"
+	resultsPipe <- "i"
+	resultsPipe <- "j"
 
 	// fmt.Println("before go func")
 	// func() {
@@ -107,18 +111,23 @@ L:
 		select {
 		case <-time.Tick(time.Second * 30):
 			fmt.Println("process timed out")
+
 			//we time out via sending a sigterm, but could also do it via sigint
-			shutdownSigTerm <- syscall.SIGTERM
-		case sig := <-shutdownSigTerm:
-			fmt.Printf("shutdown signal %s received\n", sig)
+
+			//this doesn't seemt to trigger the case sig. hence no results printed
+			// shutdownSigTerm <- syscall.SIGTERM
+			//so I added this instead
 			break L
-		case sig := <-shutdownSigInt:
-			fmt.Printf("shutdown signal %s received\n", sig)
+		case sigTerm := <-shutdownSigTerm:
+			fmt.Printf("shutdown signal %s received\n", sigTerm)
+			break L
+		case sigInt := <-shutdownSigInt:
+			fmt.Printf("shutdown signal %s received\n", sigInt)
 			break L
 		case result := <-resultsPipe:
 			//TODO - this seems to fire in an infinite loop
 			fmt.Printf("appending result:%v to results\n", result)
-			// results = append(results, result)
+			results = append(results, result)
 
 			// Calling Sleep method
 			time.Sleep(1 * time.Second)
