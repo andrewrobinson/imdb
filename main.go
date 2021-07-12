@@ -79,13 +79,14 @@ func main() {
 
 	for _, n := range strings {
 		fmt.Printf("each n:%v\n", n)
+		resultsPipe <- n
 	}
 
-	resultsPipe <- "f"
-	resultsPipe <- "g"
-	resultsPipe <- "h"
-	resultsPipe <- "i"
-	resultsPipe <- "j"
+	// resultsPipe <- "f"
+	// resultsPipe <- "g"
+	// resultsPipe <- "h"
+	// resultsPipe <- "i"
+	// resultsPipe <- "j"
 
 	// fmt.Println("before go func")
 	// func() {
