@@ -1,0 +1,43 @@
+Problems:
+
+https://golang.org/ref/spec#Select_statements
+
+https://gobyexample.com/closing-channels
+
+
+
+
+1) I want to see the results the moment they are available, not wait for timeout of sigterm or sigint
+So, on top of Tyrone's code, I added
+finishedProcessingPipe := make(chan string)
+and then printResults and printResultsSoFar for different messages to be sent
+BUT - I can't get this working properly
+
+2) Not sure how to integrate my actual code in here.
+ie do I use channels for full output or not.
+Channels block unless they are "buffered", ie given a size
+Since pipelines are built on top of these, I'm not sure how useful this approach is here, 
+since sizes aren't know ahead of time
+ie I rather want to return the results the usual way, and just use channels for shutdown etc
+
+
+here are the sizes of each "pipeline stage"
+    iterateRows (number of lines in file - known)
+        filteredRows (size decreases by an unknown amount)
+            lookupPlots (size stays same)
+                regexFilterPlots(size decreases by an unknown amount)
+                    printResults(size stays same as previous stage, but isn't known ahead of time)
+
+2) I can't seem to send to channels from inside a case statement.
+This is why Tyrone's shutdownSigTerm <- syscall.SIGTERM doesn't work?
+and why I have to hack a break L
+
+I think this is also why I can't send various states to finishedProcessingPipe
+The only one that does is arrive is "done". And this arrives BEFORE I have 
+received result := <-resultsPipe
+
+3) case result := <-resultsPipe fires in an infinite loop if resultsPipe is closed. Why? all other signals are drowned out
+
+
+
+

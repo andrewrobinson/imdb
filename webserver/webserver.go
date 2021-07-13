@@ -8,6 +8,16 @@ import (
 	"time"
 )
 
+/*
+
+This serves up a static json file for when main.go is configured with
+
+plotLookuptemplate := "http://localhost:3000/%s.json"
+
+(imdb gives you only 1000 plot lookups a day)
+
+*/
+
 func main() {
 	mux := http.NewServeMux()
 
