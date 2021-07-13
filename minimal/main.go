@@ -34,6 +34,10 @@ func main() {
 			resultsPipe <- n
 			time.Sleep(600 * time.Millisecond)
 		}
+
+		//If you enable this then you get an infinite loop wih case result := <-resultsPipe firing all the time
+		// close(resultsPipe)
+
 		//this does arrive - but before all the  result := <-resultsPipe cases have come in
 		//with a sleep, or some time spent on real execution - no problem
 		finishedProcessingPipe <- "done"
