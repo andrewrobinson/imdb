@@ -65,7 +65,7 @@ func main() {
 
 	// plotLookuptemplate := "http://www.omdbapi.com/?i=%s&apikey=591edae0"
 
-	//needs go run webserver.go
+	//needs go run webserver/webserver.go running
 	plotLookuptemplate := "http://localhost:3000/%s.json"
 
 	// plotLookuptemplate := "https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727dfadb65a3faccd6786a099dce5ef/static/tt0000075.json"
@@ -86,13 +86,15 @@ func main() {
 	//ie values of "done", "timedOut", "sigTerm", "sigInt"
 	finishedProcessingPipe := make(chan string)
 
-	//produce fake results to resultsPipe.
-	//processFile(real results) just prints still at this stage.
 	go func() {
+
+		//produce fake results to resultsPipe.
 		for _, n := range strings {
 			resultsPipe <- n
 		}
 
+		//This is the real results. It just prints output as it gets it
+		//I'm tempted to try and produce to resultsPipe but the size of the results is unknown
 		processFile(flags, printRows, printMatches, plotLookuptemplate)
 
 		elapsed := time.Since(start)
@@ -101,10 +103,11 @@ func main() {
 		}
 
 		//this works as long as processFile takes a while.
-		//Without processFile, this message can arrive before any case result := <-resultsPipe have fired
+		//Without processFile being called, this message can arrive before any case result := <-resultsPipe have fired
 		finishedProcessingPipe <- "done"
 	}()
 
+	//For convenience, since I'm not using Docker here yet, I need the program to stop on Ctrl-C as well as SIGTERM
 	shutdownSigTerm := make(chan os.Signal)
 	signal.Notify(shutdownSigTerm, os.Interrupt, syscall.SIGTERM)
 
@@ -115,8 +118,8 @@ Loop:
 
 	for {
 		select {
-		case <-time.Tick(time.Second * 30):
-			fmt.Println("process timed out")
+		case <-time.Tick(time.Second * time.Duration(flags.MaxRunTimeFlag)):
+			fmt.Printf("process timed out after %v seconds\n", flags.MaxRunTimeFlag)
 
 			// Sending messages to channels inside the case statement doesn't seem to work
 			// shutdownSigTerm <- syscall.SIGTERM
@@ -142,7 +145,7 @@ Loop:
 			printResults(results)
 		case result := <-resultsPipe:
 			//this fires in an infinite loop if resultsPipe has been closed - why?
-			fmt.Printf("intermediate result:%v\n", result)
+			fmt.Printf("intermediate fake result:%v\n", result)
 			results = append(results, result)
 		}
 	}
