@@ -66,6 +66,25 @@ func printResultsSoFar(results []string) {
 
 func main() {
 
+	printFlags := false
+	printRows := true
+	printMatches := true
+	printDuration := true
+
+	// plotLookuptemplate := "http://www.omdbapi.com/?i=%s&apikey=591edae0"
+
+	//needs go run webserver.go
+	plotLookuptemplate := "http://localhost:3000/%s.json"
+
+	// plotLookuptemplate := "https://raw.githubusercontent.com/andrewrobinson/imdb/207ba5bd2727dfadb65a3faccd6786a099dce5ef/static/tt0000075.json"
+
+	start := time.Now()
+
+	flags := common.BuildProgramFlags()
+	if printFlags {
+		fmt.Printf("Flags passed: %+v\n", flags)
+	}
+
 	var results []string
 
 	strings := [5]string{"a", "b", "c", "d", "e"}
@@ -81,6 +100,14 @@ func main() {
 		for _, n := range strings {
 			resultsPipe <- n
 		}
+
+		processFile(flags, printRows, printMatches, plotLookuptemplate)
+
+		elapsed := time.Since(start)
+		if printDuration {
+			fmt.Printf("finished, elapsed time:%v\n", elapsed)
+		}
+
 		//this does arrive - but before all the  result := <-resultsPipe cases have come in
 		//maybe in my actual code I would get somewhere more delayed to send it from
 		finishedProcessingPipe <- "done"
@@ -131,41 +158,6 @@ L:
 		}
 	}
 
-}
-
-func main4() {
-	shutdown := make(chan os.Signal)
-	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
-
-	var results []string
-	resultsPipe := make(chan string)
-
-	strings := [5]string{"a", "b", "c", "d"}
-
-	go func() {
-		for _, n := range strings {
-			resultsPipe <- n
-		}
-		close(resultsPipe)
-	}()
-
-L:
-
-	for {
-		select {
-		case <-time.Tick(time.Second * 30):
-			fmt.Println("process timed out")
-			shutdown <- syscall.SIGTERM
-			// break L
-		case sig := <-shutdown:
-			fmt.Printf("shutdown signal %s recieved", sig)
-			break L
-		case result := <-resultsPipe:
-			results = append(results, result)
-		}
-	}
-
-	fmt.Printf("results:%v", results)
 }
 
 func main2() {

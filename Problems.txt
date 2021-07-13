@@ -1,5 +1,12 @@
 Problems:
 
+https://golang.org/ref/spec#Select_statements
+
+https://gobyexample.com/closing-channels
+
+
+
+
 1) I want to see the results the moment they are available, not wait for timeout of sigterm or sigint
 So, on top of Tyrone's code, I added
 finishedProcessingPipe := make(chan string)
